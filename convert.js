@@ -79,7 +79,7 @@
 					.replace(/[ ,:\/\\]/gi, '_') + '.vcf';
 
 			if (contactName.length > 1) {
-				card.lastName = contactName.pop().trim();
+				card.lastName = contactName.shift().trim();
 				card.firstName = contactName.join(',').trim();
 			} else {
 				card.lastName = contact.person[0].realName[0];
