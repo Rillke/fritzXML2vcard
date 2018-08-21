@@ -5,11 +5,12 @@
 
 	var inputFile = process.argv[2],
 		outputDir = process.argv[3],
-		requiredModules = ['fs','xml2js', 'vcards-js'];
+		requiredModules = ['fs', 'pixl-xml', 'vcards-js', './src/lib-convert'];
 
 	if (!inputFile || !outputDir ||
-		/^--help$/.test(inputFile) ||
-		/^-h$/.test(inputFile)) {
+		/^(?:\/|--?)?help$/.test(inputFile) ||
+		/^[\/-]h$/.test(inputFile)) {
+		console.log('Help:');
 		dieUsage();
 	}
 
@@ -26,9 +27,7 @@
 
 	// load modules
 	var fs = require('fs'),
-		xml2js = require('xml2js'),
-		vCard = require('vcards-js'),
-		parser = new xml2js.Parser();
+		libConvert = require('./src/lib-convert');
 
 	// Try locating inputFile
 	if (!fs.existsSync(inputFile)) {
@@ -42,13 +41,13 @@
 		dieUsage();
 	}
 
-	// map FritzXML properties to vcf
-	var phonePropertyMapping = {
-		'home': 'homePhone',
-		'work': 'workPhone',
-		'fax_work': 'workFax',
-		'mobile': 'cellPhone'
-	};
+	if (!fs.existsSync(outputDir)) {
+		console.error(
+			'Can not locate output directory where to place the vcf files: ' +
+			process.argv[3]);
+		console.error('Please make sure it exists, or create it.');
+		dieUsage();
+	}
 
 	function dieInstall() {
 		console.log(
@@ -62,49 +61,21 @@
 		console.log(
 			'fritzXML2vcard - https://github.com/Rillke/fritzXML2vcard\n' +
 			'Convert addresses exported by AVM\'s FritzBox ' +
-			'to vCard (*.vcf) files.\n' +
+			'to vCard (*.vcf) files.\n\n' +
 			'Usage:\n' +
-			'node convert.js phone-book-input.xml /path/to/outputDir'
+			' node convert.js phone-book-input.xml /path/to/outputDir\n\n' +
+			'Or if globally installed by npm:\n' +
+			' fritz-xml-2vcard phone-book-input.xml /path/to/outputDir'
 		);
 		process.exit(1);
 	}
 
-	function run(err, result) {
-		var contacts = result.phonebooks.phonebook[0].contact;
-		for (var contact of contacts) {
-			var card = vCard(),
-				contactName = contact.person[0].realName[0]
-					.split(','),
-				saveFileName = contact.person[0].realName[0]
-					.replace(/[ ,:\/\\]/gi, '_') + '.vcf';
+	var xmlString = fs.readFileSync(inputFile, 'utf8'),
+		result = libConvert.fritzXML2vcard(xmlString);
 
-			if (contactName.length > 1) {
-				card.lastName = contactName.shift().trim();
-				card.firstName = contactName.join(',').trim();
-			} else {
-				card.lastName = contact.person[0].realName[0];
+		for ( var vcfFile in result ) {
+			if ( result.hasOwnProperty( vcfFile ) ) {
+				fs.writeFileSync( outputDir + '/' + vcfFile, result[vcfFile] );
 			}
-
-			for (var number of contact.telephony[0].number) {
-				if (number.$.type in phonePropertyMapping) {
-					card[
-						phonePropertyMapping[number.$.type]
-					] = number._;
-				}
-			}
-
-			for (var service of contact.services) {
-				for (var email of (service.email || [])) {
-					card.email = email._;
-				}
-			}
-
-			//save to file
-			card.saveToFile(outputDir + '/' + saveFileName);
 		}
-	}
-
-	fs.readFile(inputFile, function(err, data) {
-		parser.parseString(data, run);
-	});
 }());

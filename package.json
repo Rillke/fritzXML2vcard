@@ -2,14 +2,24 @@
   "name": "fritz-xml-2vcard",
   "version": "1.0.0",
   "description": "Convert FRITZ!Box address book XML format to vcards.",
-  "main": "convert.js",
+  "main": "lib-convert.js",
+  "bin": "./convert.js",
   "dependencies": {
-    "vcards-js": "^2.8.0",
-    "xml2js": "^0.4.19"
+    "pixl-xml": "^1.0.13",
+    "vcards-js": "^2.8.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "browserify": "^16.2.2",
+    "uglify-js": "^3.4.7"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Not yet implemented. Patches welcome.\" && exit 1",
+    "escompat": "./node_modules/.bin/babel src --out-dir lib",
+    "bundle": "browserify lib/lib-convert.js -o dist/fritzXML2vcard-browser.js",
+    "minify": "uglifyjs dist/fritzXML2vcard-browser.js -o dist/fritzXML2vcard-browser-min.js",
+    "build": "npm run escompat && npm run bundle && npm run minify"
   },
   "repository": {
     "type": "git",
@@ -26,5 +36,8 @@
   "bugs": {
     "url": "https://github.com/Rillke/fritzXML2vcard/issues"
   },
-  "homepage": "https://github.com/Rillke/fritzXML2vcard#readme"
+  "homepage": "https://github.com/Rillke/fritzXML2vcard#readme",
+  "babel": {
+    "presets": ["env"]
+  }
 }
