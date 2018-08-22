@@ -12,10 +12,11 @@
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "browserify": "^16.2.2",
+    "jasmine": "^3.2.0",
     "uglify-js": "^3.4.7"
   },
   "scripts": {
-    "test": "echo \"Not yet implemented. Patches welcome.\" && exit 1",
+    "test": "jasmine",
     "escompat": "./node_modules/.bin/babel src --out-dir lib",
     "bundle": "browserify lib/lib-convert.js -o dist/fritzXML2vcard-browser.js",
     "minify": "uglifyjs dist/fritzXML2vcard-browser.js -o dist/fritzXML2vcard-browser-min.js",
@@ -38,6 +39,8 @@
   },
   "homepage": "https://github.com/Rillke/fritzXML2vcard#readme",
   "babel": {
-    "presets": ["env"]
+    "presets": [
+      "env"
+    ]
   }
 }

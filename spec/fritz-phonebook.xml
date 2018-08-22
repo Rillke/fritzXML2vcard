@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<phonebooks>
+	<phonebook name="Telefonbuch">
+		<contact>
+			<category>0</category>
+			<person>
+				<realName>Test GmbH</realName>
+			</person>
+			<telephony nid="2">
+				<number type="work" prio="1" id="0">01234 567890</number>
+				<number type="fax_work" prio="0" id="1">(01234) 56789-2</number>
+			</telephony>
+			<services nid="1">
+				<email classifier="private" id="0">info@example.com</email>
+			</services>
+			<setup />
+			<features doorphone="0" />
+			<mod_time>1476188984</mod_time>
+			<uniqueid>2</uniqueid>
+		</contact>
+		<contact>
+			<category />
+			<person>
+				<realName>Guter Nachbar</realName>
+			</person>
+			<telephony nid="1">
+				<number type="home" vanity="" prio="1" id="0">23456</number>
+			</telephony>
+			<services />
+			<setup>
+				<ringTone />
+			</setup>
+			<mod_time>1478438296</mod_time>
+			<uniqueid>1</uniqueid>
+		</contact>
+		<contact>
+			<category>0</category>
+			<person>
+				<realName>Arzt, Very long name because it consists of Praxis and two names.</realName>
+			</person>
+			<telephony nid="1">
+				<number type="work" prio="1" id="0">012345 34567890</number>
+			</telephony>
+			<services />
+			<setup />
+			<features doorphone="0" />
+			<mod_time>1532104029</mod_time>
+			<uniqueid>3</uniqueid>
+		</contact>
+		<contact>
+			<category />
+			<person>
+				<realName>AVM Ansage (HD)</realName>
+			</person>
+			<telephony nid="1">
+				<number prio="1" type="work" quickdial="65" id="0">500@hd-telefonie.avm.de</number>
+			</telephony>
+			<services />
+			<setup />
+			<uniqueid>5</uniqueid>
+		</contact>
+		<contact>
+			<category>0</category>
+			<person>
+				<realName>Apostrophe' and german umlauts like ö and ü and ä - ß</realName>
+				<imageURL>file:///var/InternerSpeicher/FRITZ/fonpix/2245353675-0.jpg</imageURL>
+			</person>
+			<telephony nid="1">
+				<number type="work" prio="1" id="0">098765 54321</number>
+			</telephony>
+			<services />
+			<setup />
+			<mod_time>1524933691</mod_time>
+			<uniqueid>4</uniqueid>
+			<features doorphone="0" />
+		</contact>
+		<contact>
+			<category>0</category>
+			<person>
+				<realName>Multiple work phone numbers</realName>
+			</person>
+			<telephony nid="2">
+				<number type="work" prio="1" id="0">3333333 33332</number>
+				<number type="work" prio="0" id="1">(3333333) 33332-1</number>
+			</telephony>
+			<services />
+			<setup />
+			<features doorphone="0" />
+			<mod_time>1532104412</mod_time>
+			<uniqueid>6</uniqueid>
+		</contact>
+		<contact>
+			<category>0</category>
+			<person>
+				<realName>An internation company</realName>
+				<imageURL>file:///var/InternerSpeicher/FRITZ/fonpix/281288883304-0.jpg</imageURL>
+			</person>
+			<telephony nid="1">
+				<number type="work" prio="1" id="0">0047-0123456780</number>
+			</telephony>
+			<services nid="1">
+				<email classifier="private" id="0">example@example.no</email>
+			</services>
+			<setup />
+			<features doorphone="0" />
+			<mod_time>1524932919</mod_time>
+			<uniqueid>7</uniqueid>
+		</contact>
+		<contact>
+			<category>1</category>
+			<person>
+				<realName>Cellphone, Mr. Mobile</realName>
+			</person>
+			<telephony nid="2">
+				<number type="home" prio="1" id="0">04567-98765</number>
+				<number type="mobile" prio="0" id="1">017700000001</number>
+			</telephony>
+			<services />
+			<setup />
+			<uniqueid>8</uniqueid>
+			<features doorphone="0" />
+			<mod_time>1524932760</mod_time>
+		</contact>
+		<contact>
+			<category>0</category>
+			<person>
+				<realName>No telephony</realName>
+			</person>
+			<services nid="1">
+				<email classifier="private" id="0">Info@example.com</email>
+			</services>
+			<setup />
+			<features doorphone="0" />
+			<mod_time>1515444645</mod_time>
+			<uniqueid>9</uniqueid>
+		</contact>
+	</phonebook>
+</phonebooks>
