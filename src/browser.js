@@ -127,12 +127,13 @@
 	}
 
 	function run() {
-		var fritzXML = $fritzXmlText.val();
+		var fritzXML = $fritzXmlText.val(),
+			vCards, vCardStrings, vCardObjects;
 
 		try {
-			var vCards = libConvert.fritzXML2vcardObjects(fritzXML),
-				vCardStrings = vCards.vCardStrings,
-				vCardObjects = vCards.vCardObjects;
+			vCards = libConvert.fritzXML2vcardObjects(fritzXML);
+			vCardStrings = vCards.vCardStrings;
+			vCardObjects = vCards.vCardObjects;
 		} catch (ex) {
 			alert('Sorry, there was an error processing your XML. Maybe truncated?\n' +
 				'Here is the error message:\n' + ex.message);
