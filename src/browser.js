@@ -9,6 +9,7 @@
 		$fritzXmlFile = $('#fritzxml-file'),
 		$fritzXmlText = $('#fritzxml-text'),
 		$run = $('#run'),
+		$output = $('#output'),
 		$vCards = $('#vcards'),
 		$getAll = $('#get-all'),
 		$deleteAll = $('#delete-all'),
@@ -137,7 +138,7 @@
 				'Here is the error message:\n' + ex.message);
 		}
 
-		$getAll.add($deleteAll).show();
+		$output.fadeIn('fast');
 		for (var vCard in vCardStrings) {
 			if (vCardStrings.hasOwnProperty(vCard)) {
 				var vCardObject = vCardObjects[vCard],

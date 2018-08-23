@@ -1,7 +1,7 @@
 # Distribution artifacts
 dist/fritzXML2vcard-browser-min.js
 dist/fritzXML2vcard-browser.js
-lib/*
+lib/
 
 # Logs
 logs
