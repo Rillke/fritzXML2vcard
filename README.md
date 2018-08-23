@@ -1,5 +1,6 @@
-# fritzXML2vcard
-Convert FRITZ!Box address book XML format to vCards. [![Build Status](https://travis-ci.org/Rillke/fritzXML2vcard.svg?branch=master)](https://travis-ci.org/Rillke/fritzXML2vcard.svg)
+# fritzXML2vcard [![Build Status](https://api.travis-ci.com/Rillke/fritzXML2vcard.svg?branch=master)](https://travis-ci.com/Rillke/fritzXML2vcard)
+
+Convert FRITZ!Box address book XML format to vCards.
 
 Requires [nodejs and npm](https://nodejs.org/en/download/).
 
