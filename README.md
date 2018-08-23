@@ -25,8 +25,8 @@ fritz-xml-2vcard /path/to/contact.xml /path/to/output/dir
 git clone https://github.com/Rillke/fritzXML2vcard.git
 cd fritzXML2vcard
 npm install
-npm test
 npm run build
+npm test
 mkdir -p /path/to/output/dir
 /path/to/node_or_nodejs ./convert.js /path/to/contact.xml /path/to/output/dir
 ```
