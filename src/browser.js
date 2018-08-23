@@ -126,17 +126,29 @@
 	}
 
 	function run() {
-		var fritzXML = $fritzXmlText.val(),
-			vCards = libConvert.fritzXML2vcardObjects(fritzXML),
-			vCardStrings = vCards.vCardStrings,
-			vCardObjects = vCards.vCardObjects;
+		var fritzXML = $fritzXmlText.val();
+
+		try {
+			var vCards = libConvert.fritzXML2vcardObjects(fritzXML),
+				vCardStrings = vCards.vCardStrings,
+				vCardObjects = vCards.vCardObjects;
+		} catch (ex) {
+			alert('Sorry, there was an error processing your XML. Maybe truncated?\n' +
+				'Here is the error message:\n' + ex.message);
+		}
 
 		$getAll.add($deleteAll).show();
 		for (var vCard in vCardStrings) {
 			if (vCardStrings.hasOwnProperty(vCard)) {
-				var $vCard = $vCardTemplate.clone().removeAttr('id'),
-					$fileName = $vCard.find('.vcf-filename');
+				var vCardObject = vCardObjects[vCard],
+					$vCard = $vCardTemplate.clone().removeAttr('id'),
+					$fileName = $vCard.find('.vcf-filename'),
+					$name = $vCard.find('.vcf-name'),
+					name = vCardObject.firstName ? 
+						(vCardObject.firstName + ' ' + vCardObject.lastName) : 
+						vCardObject.lastName;
 
+				$name.text(name);
 				$fileName.text(vCard);
 				$vCard
 					.data('card', vCardStrings[vCard])

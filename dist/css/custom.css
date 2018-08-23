@@ -41,6 +41,29 @@
 
 #vcards li {
 	list-style: none;
+	padding: 4px 4px 4px 8px;
+	border-radius: 4px;
+	border: 1px solid #E1E1E1;
+	box-shadow: 0 0 .8em gray;
+}
+
+.vcf-name {
+	font-size: 50%;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	max-width: calc(95% - 70px);
+	display: inline-block;
+	overflow: hidden;
+}
+
+.vcf-filename {
+	font-size: 80%;
+	color: #BBB;
+	word-wrap: break-word;
+}
+
+.vcard-technical {
+	text-align: right;
 }
 
 #vcf-template, #get-all, #delete-all {

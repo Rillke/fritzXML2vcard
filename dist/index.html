@@ -41,22 +41,29 @@
 					<textarea class="u-full-width" id="fritzxml-text" name="fritzxml-text"
 					 placeholder="Fritz!Box phone book XML"></textarea>
 					<button id="run" class="button-primary">Convert to vCards</button>
-					<div><b class="far fa-lightbulb"></b> Convert multiple address books, remove those vCards you do not require and download the remaining cards in a zip archive.</div>
+					<div><b class="far fa-lightbulb"></b> Convert multiple phone books, remove those vCards you do not require and download the remaining cards in a zip archive.</div>
 				</div>
 				<div class="six columns">
 					<h2>Out: vCards <b class="far fa-address-card"></b></h2>
 					<div id="vcard-container">
 						<ul id="vcards">
 							<li id="vcf-template" class="vcard">
-								<i class="fas fa-user"></i>
-								<a href="#view">
-								<span class="vcf-filename">some_one.vcf</span></a>
-								<span class="space"></span>
-								<a href="#get"><i class="fas fa-file-download"></i></a>
-								<span class="space"></span>
-								<a href="#copy"><i class="fas fa-clipboard-list"></i></a>
-								<span class="space"></span>
-								<a href="#delete"><i class="fas fa-trash"></i></a>
+								<h3><i class="far fa-user-circle"></i>
+									<a href="#view">
+										<span class="vcf-name">Some Name</span>
+									</a>
+								</h3>
+								<div class="vcard-technical">
+									<span class="vcf-filename">some_one.vcf</span></a>
+									<span class="space"></span>
+									<span class="nowrap">
+										<a href="#get"><i class="fas fa-file-download"></i></a>
+										<span class="space"></span>
+										<a href="#copy"><i class="fas fa-clipboard-list"></i></a>
+										<span class="space"></span>
+										<a href="#delete"><i class="fas fa-trash"></i></a>
+									</span>
+								</div>
 							</li>
 					</ul>
 					</div>
