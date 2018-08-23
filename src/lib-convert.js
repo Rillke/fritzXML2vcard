@@ -18,6 +18,9 @@
 		var contacts = result.phonebook.contact,
 			output = {vCardStrings:{},vCardObjects:{}};
 
+		if (!contacts.length) {
+			contacts = [contacts];
+		}
 		for (var contact of contacts) {
 			var card = vCard(),
 				contactName = contact.person.realName
@@ -71,7 +74,7 @@
 	 */
 	module.exports.fritzXML2vcard = function ( xml_string ) {
 		return run( XML.parse( xml_string ) ).vCardStrings;
-	}
+	};
 
 	/**
 	 * @var string FritzBox Phone book XML string
@@ -81,6 +84,6 @@
 	 */
 	module.exports.fritzXML2vcardObjects = function ( xml_string ) {
 		return run( XML.parse( xml_string ) );
-	}
+	};
 
 }());
