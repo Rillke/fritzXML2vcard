@@ -41,22 +41,29 @@
 					<textarea class="u-full-width" id="fritzxml-text" name="fritzxml-text"
 					 placeholder="Fritz!Box phone book XML"></textarea>
 					<button id="run" class="button-primary">Convert to vCards</button>
-					<div><b class="far fa-lightbulb"></b> Convert multiple address books, remove those vCards you do not require and download the remaining cards in a zip archive.</div>
+					<div><b class="far fa-lightbulb"></b> Convert multiple phone books, remove those vCards you do not require and download the remaining cards in a zip archive.</div>
 				</div>
-				<div class="six columns">
+				<div id="output" class="six columns">
 					<h2>Out: vCards <b class="far fa-address-card"></b></h2>
 					<div id="vcard-container">
 						<ul id="vcards">
 							<li id="vcf-template" class="vcard">
-								<i class="fas fa-user"></i>
-								<a href="#view">
-								<span class="vcf-filename">some_one.vcf</span></a>
-								<span class="space"></span>
-								<a href="#get"><i class="fas fa-file-download"></i></a>
-								<span class="space"></span>
-								<a href="#copy"><i class="fas fa-clipboard-list"></i></a>
-								<span class="space"></span>
-								<a href="#delete"><i class="fas fa-trash"></i></a>
+								<h3><i class="far fa-user-circle"></i>
+									<a href="#view">
+										<span class="vcf-name">Some Name</span>
+									</a>
+								</h3>
+								<div class="vcard-technical">
+									<span class="vcf-filename">some_one.vcf</span></a>
+									<span class="space"></span>
+									<span class="nowrap">
+										<a href="#get"><i class="fas fa-file-download"></i></a>
+										<span class="space"></span>
+										<a href="#copy"><i class="fas fa-clipboard-list"></i></a>
+										<span class="space"></span>
+										<a href="#delete"><i class="fas fa-trash"></i></a>
+									</span>
+								</div>
 							</li>
 					</ul>
 					</div>
@@ -68,15 +75,15 @@
 				</div>
 			</div>
 		</section>
-		<section class="footer">
-			Privacy <b class="fas fa-user-shield"></b> can be important. Conversion runs in your browser. Your uploads on this page are not transmitted to any server. You are welcome to improve by sending <a href="https://github.com/Rillke/fritzXML2vcard/pulls">pull-/merge-requests</a>, and if you need a specific feature or <a href="https://github.com/Rillke/fritzXML2vcard/issues">issue fixed</a>, please get in touch.
-			<footer>
-				Version: <code id="version"></code>
-				Master: <a href="https://travis-ci.com/Rillke/fritzXML2vcard" id="status-image-popup" title="Latest push build on master branch" name="status-images" class="open-popup"><img src="https://travis-ci.com/Rillke/fritzXML2vcard.svg?branch=master" alt="build status"></a>
-				<br>Made with <b class="fas fa-heart" title="love"></b>  by <a href="https://rillke.com">Rillke</a>.
-				<a href="https://github.com/Rillke/fritzXML2vcard/zipball/gh-pages">Download</a> this website for offline use.</footer>
-		</section>
 	</div>
+	<section class="footer">
+		Privacy <b class="fas fa-user-shield"></b> can be important. Conversion runs in your browser. Your uploads on this page are not transmitted to any server. You are welcome to improve by sending <a href="https://github.com/Rillke/fritzXML2vcard/pulls">pull-/merge-requests</a>, and if you need a specific feature or <a href="https://github.com/Rillke/fritzXML2vcard/issues">issue fixed</a>, please get in touch.
+		<footer>
+			Version: <code id="version"></code>
+			Master: <a href="https://travis-ci.com/Rillke/fritzXML2vcard" id="status-image-popup" title="Latest push build on master branch" name="status-images" class="open-popup"><img src="https://travis-ci.com/Rillke/fritzXML2vcard.svg?branch=master" alt="build status"></a>
+			<br>Made with <b class="fas fa-heart" title="love"></b>  by <a href="https://rillke.com">Rillke</a>.
+			<a href="https://github.com/Rillke/fritzXML2vcard/zipball/gh-pages">Download</a> this website for offline use.</footer>
+	</section>
 	<script src="fritzXML2vcard-browser-min.js"></script>
 </body>
 

@@ -14,8 +14,9 @@
 
 .footer {
 	margin-top: 3vh;
-	margin-bottom: 2em;
 	border-top: 1px solid #E1E1E1;
+	background: #f0f2f5;
+	padding: 2em 10%;
 }
 
 #fritzxml-text {
@@ -41,9 +42,32 @@
 
 #vcards li {
 	list-style: none;
+	padding: 4px 4px 4px 8px;
+	border-radius: 4px;
+	border: 1px solid #E1E1E1;
+	box-shadow: 0 0 .8em gray;
 }
 
-#vcf-template, #get-all, #delete-all {
+.vcf-name {
+	font-size: 50%;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	max-width: calc(95% - 70px);
+	display: inline-block;
+	overflow: hidden;
+}
+
+.vcf-filename {
+	font-size: 80%;
+	color: #BBB;
+	word-wrap: break-word;
+}
+
+.vcard-technical {
+	text-align: right;
+}
+
+#output {
 	display: none;
 }
 
