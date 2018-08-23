@@ -4,9 +4,9 @@ Convert FRITZ!Box address book XML format to vCards.
 
 ## Web interface/ online version
 
-A [hosted/web/onine version is available](https://blog.rillke.com/fritzXML2vcard/).
+An [onine web-version is available](https://blog.rillke.com/fritzXML2vcard/). You may also [download the entire website](https://github.com/Rillke/fritzXML2vcard/zipball/gh-pages).
 
-![Screenshot Web interface/ online version](https://raw.githubusercontent.com/Rillke/fritzXML2vcard/gh-pages/img/web-tool-screenshot.png)
+[![Screenshot Web interface/ online version](https://raw.githubusercontent.com/Rillke/fritzXML2vcard/gh-pages/img/web-tool-screenshot.png)](https://blog.rillke.com/fritzXML2vcard/)
 
 ## CLI user installation
 
