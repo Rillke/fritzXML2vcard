@@ -127,17 +127,19 @@
 
 	function run() {
 		var fritzXML = $fritzXmlText.val(),
-			vCards = libConvert.fritzXML2vcard(fritzXML);
+			vCards = libConvert.fritzXML2vcardObjects(fritzXML),
+			vCardStrings = vCards.vCardStrings,
+			vCardObjects = vCards.vCardObjects;
 
 		$getAll.add($deleteAll).show();
-		for (var vCard in vCards) {
-			if (vCards.hasOwnProperty(vCard)) {
+		for (var vCard in vCardStrings) {
+			if (vCardStrings.hasOwnProperty(vCard)) {
 				var $vCard = $vCardTemplate.clone().removeAttr('id'),
 					$fileName = $vCard.find('.vcf-filename');
 
 				$fileName.text(vCard);
 				$vCard
-					.data('card', vCards[vCard])
+					.data('card', vCardStrings[vCard])
 					.data('name', vCard)
 					.appendTo($vCards);
 			}

@@ -16,7 +16,7 @@
 
 	function run(result) {
 		var contacts = result.phonebook.contact,
-			output = {};
+			output = {vCardStrings:{},vCardObjects:{}};
 
 		for (var contact of contacts) {
 			var card = vCard(),
@@ -53,7 +53,8 @@
 				card.email = contact.services.email._Data;
 			}
 
-			output[saveFileName] = card.getFormattedString();
+			output.vCardStrings[saveFileName] = card.getFormattedString();
+			output.vCardObjects[saveFileName] = card;
 		}
 		return output;
 	}
@@ -63,6 +64,16 @@
 	 * @return object Hash mapping suggested file names to vCard strings
 	 */
 	module.exports.fritzXML2vcard = function ( xml_string ) {
+		return run( XML.parse( xml_string ) ).vCardStrings;
+	}
+
+	/**
+	 * @var string FritzBox Phone book XML string
+	 * @return object Hash {vCardStrings:{},vCardObjects:{}}
+	 *         vCardStrings: Mapping suggested file names to vCard strings
+	 *         vCardObjects: Mapping suggested file names to vCard objects
+	 */
+	module.exports.fritzXML2vcardObjects = function ( xml_string ) {
 		return run( XML.parse( xml_string ) );
 	}
 
