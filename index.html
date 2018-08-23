@@ -1,0 +1,78 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+
+	<title>FritzXML to vCard (vcf)</title>
+	<meta name="description" content="Convert address-/phone books created by AVM's Fritz!Box to vcf files that are readeable by iPhones and some Microsoft-crafted Software.">
+	<meta name="author" content="Rainer Rillke">
+
+	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/skeleton.css">
+	<link rel="stylesheet" href="css/fa.all.min.css">
+	<link rel="stylesheet" href="css/jquery.modal.min.css">
+	<link rel="stylesheet" href="css/custom.css">
+</head>
+
+<body>
+	<div id="drop-zone">
+		<div>Drop FritzXML file here.</div>
+	</div>
+	<a id="fork-me" href="https://github.com/Rillke/fritzXML2vcard"><img
+		 src="img/forkme_right_orange_ff7600.png" alt="Fork me on GitHub" /></a>
+	<div class="container">
+		<section class="header">
+			<h1>FritzXML to vCard (vcf)</h1>
+			Convert phone books created by AVM's Fritz!Box to vcf files that
+			are readeable by iPhone contacts app, and some Microsoft-crafted
+			Software.
+		</section>
+		<!-- columns should be the immediate child of a .row -->
+		<section class="coversion" id="coversion">
+			<div class="row">
+				<div class="six columns">
+					<h2>In: Fritz!Box XML</h2>
+					Select a file from your computer:
+					<input type="file" class="u-full-width" id="fritzxml-file" name="fritzxml-file"
+					 accept="application/xml, text/xml, *.xml" /><br />
+					Or paste Fritz!Box phone book XML:
+					<textarea class="u-full-width" id="fritzxml-text" name="fritzxml-text"
+					 placeholder="Fritz!Box phone book XML"></textarea>
+					<button id="run" class="button-primary">Run</button>
+				</div>
+				<div class="six columns">
+					<h2>Out: vCards</h2>
+					<div id="vcard-container">
+						<ul id="vcards">
+							<li id="vcf-template" class="vcard">
+								<i class="fas fa-user"></i>
+								<a href="#view">
+								<span class="vcf-filename">some_one.vcf</span></a>
+								<span class="space"></span>
+								<a href="#get"><i class="fas fa-file-download"></i></a>
+								<span class="space"></span>
+								<a href="#copy"><i class="fas fa-clipboard-list"></i></a>
+								<span class="space"></span>
+								<a href="#delete"><i class="fas fa-trash"></i></a>
+							</li>
+					</ul>
+					</div>
+					<div id="get-all-container">
+						<a href="#get-all" id="get-all" class="nowrap"><b class="fas fa-download"></b>Get all vCards as zip</a>
+						<span class="space"></span>
+						<a href="#delete-all" id="delete-all" class="nowrap"><b class="fas fa-trash-alt"></b> Delete list</a>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section class="footer">
+			Privacy is important. Conversion runs in your browser. Your uploads on this page are not transmitted to any server.
+			<footer>Brought to you by <a href="https://rillke.com">Rillke</a>.</footer>
+		</section>
+	</div>
+	<script src="fritzXML2vcard-browser-min.js"></script>
+</body>
+
+</html>
