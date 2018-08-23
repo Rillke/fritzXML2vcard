@@ -147,11 +147,13 @@
 	function viewVCard(e) {
 		e.preventDefault();
 		$('<div>').append(
-			$('<pre>')
-			.text(
-				$(e.target)
-				.parents('.vcard')
-				.data('card'))
+			$('<pre>').append(
+				$('<code>').text(
+					$(e.target)
+					.parents('.vcard')
+					.data('card')
+				)
+			)
 		).appendTo($body).modal();
 	}
 
