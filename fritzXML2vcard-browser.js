@@ -360,8 +360,8 @@
 
 module.exports = {
 	tag: null,
-	hash: 'fb9c935',
-	timestamp: 1535048694
+	hash: '6181133',
+	timestamp: 1535048747
 };
 },{}],5:[function(require,module,exports){
 'use strict'
