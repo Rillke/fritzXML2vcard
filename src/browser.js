@@ -136,6 +136,7 @@
 		} catch (ex) {
 			alert('Sorry, there was an error processing your XML. Maybe truncated?\n' +
 				'Here is the error message:\n' + ex.message);
+			return;
 		}
 
 		$output.fadeIn('fast');
