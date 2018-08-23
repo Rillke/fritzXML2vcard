@@ -26,24 +26,25 @@
 		<section class="header">
 			<h1>FritzXML to vCard (vcf)</h1>
 			Convert phone books created by AVM's Fritz!Box to vcf files that
-			are readeable by iPhone contacts app, and some Microsoft-crafted
-			Software.
+			are readeable by iPhone <i class="fas fa-mobile-alt"></i> contacts
+			app, and some Microsoft <i class="fab fa-microsoft"></i> Software.
 		</section>
 		<!-- columns should be the immediate child of a .row -->
 		<section class="coversion" id="coversion">
 			<div class="row">
 				<div class="six columns">
-					<h2>In: Fritz!Box XML</h2>
+					<h2>In: Fritz!Box XML <b class="fas fa-code"></b></h2>
 					Select a file from your computer:
 					<input type="file" class="u-full-width" id="fritzxml-file" name="fritzxml-file"
 					 accept="application/xml, text/xml, *.xml" /><br />
 					Or paste Fritz!Box phone book XML:
 					<textarea class="u-full-width" id="fritzxml-text" name="fritzxml-text"
 					 placeholder="Fritz!Box phone book XML"></textarea>
-					<button id="run" class="button-primary">Run</button>
+					<button id="run" class="button-primary">Convert to vCards</button>
+					<div><b class="far fa-lightbulb"></b> Convert multiple address books, remove those vCards you do not require and download the remaining cards in a zip archive.</div>
 				</div>
 				<div class="six columns">
-					<h2>Out: vCards</h2>
+					<h2>Out: vCards <b class="far fa-address-card"></b></h2>
 					<div id="vcard-container">
 						<ul id="vcards">
 							<li id="vcf-template" class="vcard">
@@ -68,11 +69,12 @@
 			</div>
 		</section>
 		<section class="footer">
-			Privacy is important. Conversion runs in your browser. Your uploads on this page are not transmitted to any server.
+			Privacy <b class="fas fa-user-shield"></b> can be important. Conversion runs in your browser. Your uploads on this page are not transmitted to any server. You are welcome to improve by sending <a href="https://github.com/Rillke/fritzXML2vcard/pulls">pull-/merge-requests</a>, and if you need a specific feature or <a href="https://github.com/Rillke/fritzXML2vcard/issues">issue fixed</a>, please get in touch.
 			<footer>
 				Version: <code id="version"></code>
 				Master: <a href="https://travis-ci.com/Rillke/fritzXML2vcard" id="status-image-popup" title="Latest push build on master branch" name="status-images" class="open-popup"><img src="https://travis-ci.com/Rillke/fritzXML2vcard.svg?branch=master" alt="build status"></a>
-				<br>Brought to you by <a href="https://rillke.com">Rillke</a>. <a href="https://github.com/Rillke/fritzXML2vcard/zipball/gh-pages">Download</a> this website for offline usage.</footer>
+				<br>Made with <b class="fas fa-heart" title="love"></b>  by <a href="https://rillke.com">Rillke</a>.
+				<a href="https://github.com/Rillke/fritzXML2vcard/zipball/gh-pages">Download</a> this website for offline use.</footer>
 		</section>
 	</div>
 	<script src="fritzXML2vcard-browser-min.js"></script>

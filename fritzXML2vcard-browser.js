@@ -145,7 +145,7 @@
 
 	function viewVCard(e) {
 		e.preventDefault();
-		$('<div>').append($('<pre>').text($(e.target).parents('.vcard').data('card'))).appendTo($body).modal();
+		$('<div>').append($('<pre>').append($('<code>').text($(e.target).parents('.vcard').data('card')))).appendTo($body).modal();
 	}
 
 	function getVCard(e) {
@@ -315,8 +315,8 @@
 
 module.exports = {
 	tag: null,
-	hash: 'c21fb66',
-	timestamp: 1535022850
+	hash: '5e3ab8e',
+	timestamp: 1535029903
 };
 },{}],4:[function(require,module,exports){
 'use strict'

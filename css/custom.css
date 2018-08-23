@@ -14,18 +14,24 @@
 
 .footer {
 	margin-top: 3vh;
+	margin-bottom: 2em;
+	border-top: 1px solid #E1E1E1;
 }
 
 #fritzxml-text {
 	height: 35vh;
+	box-shadow: 0 0 .8em gray inset;
 }
 
 #vcard-container {
 	overflow-y: scroll;
-	max-height: 70vh;
+	height: calc(70vh - 10em);
+	min-height: 8em;
 	padding: 1em;
 	border: 1px solid #E1E1E1;
 	border-radius: 4px;
+	box-shadow: 0 0 .8em gray inset;
+	resize: both;
 }
 
 .space {
