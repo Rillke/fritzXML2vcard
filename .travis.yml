@@ -1,0 +1,25 @@
+language: node_js
+node_js:
+  - '8'
+
+cache:
+  directories:
+    - 'node_modules'
+
+script:
+  - npm test
+  - npm run build
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  keep-history: true
+  local-dir: dist
+  email: rillke@wikipedia.de
+  name: Rainer Rillke (via TravisCI)
+  on:
+    branch: master
+
+sudo: false
+
