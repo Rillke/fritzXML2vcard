@@ -2,13 +2,13 @@
 
 Convert FRITZ!Box address book XML format to vCards.
 
-Requires [nodejs and npm](https://nodejs.org/en/download/).
-
 ## Web interface/ online version
 
 A [hosted/web/onine version is available](https://blog.rillke.com/fritzXML2vcard/).
 
 ## CLI user installation
+
+Requires [nodejs and npm](https://nodejs.org/en/download/).
 
 Install the [fritz-xml-2vcard](https://www.npmjs.com/package/fritz-xml-2vcard) package from npm.
 
@@ -18,6 +18,7 @@ fritz-xml-2vcard /path/to/contact.xml /path/to/output/dir
 ```
 
 ## Developer installation
+
 ```
 git clone https://github.com/Rillke/fritzXML2vcard.git
 cd fritzXML2vcard
@@ -29,6 +30,7 @@ mkdir -p /path/to/output/dir
 ```
 
 ## API usage
+
 ```
 var libConvert = require('fritz-xml-2vcard');
 var result = libConvert.fritzXML2vcard(xmlString);
