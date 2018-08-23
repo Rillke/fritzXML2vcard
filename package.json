@@ -18,14 +18,17 @@
     "jquery": "^3.3.1",
     "jquery-modal": "^0.9.1",
     "jszip": "^3.1.5",
+    "node-git-version": "^0.1.2",
     "uglify-js": "^3.4.7"
   },
   "scripts": {
     "test": "jasmine",
-    "escompat": "./node_modules/.bin/babel src --out-dir lib",
+    "version": "cd src && ../node_modules/.bin/node-git-version",
+    "escompat": "mkdir -p lib && ./node_modules/.bin/babel src --out-dir lib",
     "bundle": "browserify lib/* -o dist/fritzXML2vcard-browser.js",
     "minify": "uglifyjs dist/fritzXML2vcard-browser.js -o dist/fritzXML2vcard-browser-min.js",
-    "build": "npm run escompat && npm run bundle && npm run minify"
+    "cleanup": "rm src/version.js lib/version.js",
+    "build": "npm run version && npm run escompat && npm run bundle && npm run minify && npm run cleanup"
   },
   "repository": {
     "type": "git",

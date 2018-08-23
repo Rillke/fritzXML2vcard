@@ -13,14 +13,16 @@
 		$getAll = $('#get-all'),
 		$deleteAll = $('#delete-all'),
 		$vCardTemplate = $('#vcf-template').detach(),
+		$version = $('#version'),
 		libConvert = require('./lib-convert'),
 		// https://github.com/zenorocha/clipboard.js/issues/535
 		ClipboardJS = require('clipboard/dist/clipboard.min'),
 		FileSaver = require('file-saver'),
 		JSZip = require('jszip'),
+		version = require('./version'),
 		lastTarget;
 
-	// Allow scripts use jQuery
+	// Allow non-node-scripts use jQuery
 	window.jQuery = $;
 	require('jquery-modal');
 
@@ -39,6 +41,8 @@
 
 	$getAll.on('click', getAll);
 	$deleteAll.on('click', deleteAll);
+
+	$version.text(version.hash);
 
 	function dragenter(e) {
 		lastTarget = e.target;

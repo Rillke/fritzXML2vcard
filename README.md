@@ -4,6 +4,10 @@ Convert FRITZ!Box address book XML format to vCards.
 
 Requires [nodejs and npm](https://nodejs.org/en/download/).
 
+## Web interface/ online version
+
+A [hosted/web/onine version is available](https://blog.rillke.com/fritzXML2vcard/).
+
 ## CLI user installation
 
 Install the [fritz-xml-2vcard](https://www.npmjs.com/package/fritz-xml-2vcard) package from npm.
