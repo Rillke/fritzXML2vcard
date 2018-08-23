@@ -17,16 +17,19 @@
     "jasmine": "^3.2.0",
     "jquery": "^3.3.1",
     "jquery-modal": "^0.9.1",
+    "jshint": "^2.9.6",
     "jszip": "^3.1.5",
     "node-git-version": "^0.1.2",
     "uglify-js": "^3.4.7"
   },
   "scripts": {
-    "test": "jasmine",
+    "lint": "jshint src/**.js spec/**.js",
+    "unit-test": "jasmine",
+    "test": "npm run lint && npm run unit-test",
     "version": "cd src && ../node_modules/.bin/node-git-version",
     "escompat": "mkdir -p lib && ./node_modules/.bin/babel src --out-dir lib",
-    "bundle": "browserify lib/* -o dist/fritzXML2vcard-browser.js",
-    "minify": "uglifyjs dist/fritzXML2vcard-browser.js -o dist/fritzXML2vcard-browser-min.js",
+    "bundle": "browserify lib/* -o dist/fritzXML2vcard-browser.js && browserify lib/browser-api.js -o dist/fritzXML2vcard-browser-api.js",
+    "minify": "uglifyjs dist/fritzXML2vcard-browser.js -o dist/fritzXML2vcard-browser-min.js && uglifyjs dist/fritzXML2vcard-browser-api.js -o dist/fritzXML2vcard-browser-api-min.js",
     "cleanup": "rm src/version.js lib/version.js",
     "build": "npm run version && npm run escompat && npm run bundle && npm run minify && npm run cleanup"
   },
