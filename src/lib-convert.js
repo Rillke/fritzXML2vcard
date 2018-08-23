@@ -39,9 +39,12 @@
 
 				for (var number of contact.telephony.number) {
 					if (number.type in phonePropertyMapping) {
+						if (!card[phonePropertyMapping[number.type]]) {
+							card[phonePropertyMapping[number.type]] = [];
+						}
 						card[
 							phonePropertyMapping[number.type]
-						] = number._Data;
+						].push(number._Data);
 					}
 				}
 			}
@@ -50,7 +53,10 @@
 				if (!contact.services.email._Data) {
 					contact.services.email = contact.services.email[0];
 				}
-				card.email = contact.services.email._Data;
+				if (!card.email) {
+					card.email = [];
+				}
+				card.email.push(contact.services.email._Data);
 			}
 
 			output.vCardStrings[saveFileName] = card.getFormattedString();

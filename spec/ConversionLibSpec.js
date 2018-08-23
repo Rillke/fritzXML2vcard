@@ -31,11 +31,15 @@ describe("lib-convert", function() {
     expect(vCardsFromLib = libConvert.fritzXML2vcard(fritzXML)).toEqual(
       jasmine.any(Object));
 
+    // Re-create fritzbox vcard
+    // fs.writeFileSync(__dirname + '/fritz-phonebook.vcard.json',
+    //   JSON.stringify(vCardsFromLib),'utf8');
+
     vCardsFromSrc = JSON.parse(JSON.stringify(vCardsFromSrc).replace(
-      /REV:[^"]+/g, 'REV:'));
+      /REV:[^"\n\r]+/g, 'REV:'));
     vCardsFromLib = JSON.parse(JSON.stringify(vCardsFromLib).replace(
-      /REV:[^"]+/g, 'REV:'));
-    fritzVCard = JSON.parse(fritzVCard.replace(/REV:[^"]+/g, 'REV:'));
+      /REV:[^"\n\r]+/g, 'REV:'));
+    fritzVCard = JSON.parse(fritzVCard.replace(/REV:[^"\n\r]+/g, 'REV:'));
 
     expect(fritzVCard).toEqual(vCardsFromSrc);
     expect(fritzVCard).toEqual(vCardsFromLib);
