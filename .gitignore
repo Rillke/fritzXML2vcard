@@ -1,7 +1,9 @@
 # Distribution artifacts
 dist/fritzXML2vcard-browser-min.js
+dist/fritzXML2vcard-browser-min.js.map
 dist/fritzXML2vcard-browser.js
 dist/fritzXML2vcard-browser-api-min.js
+dist/fritzXML2vcard-browser-api-min.js.map
 dist/fritzXML2vcard-browser-api.js
 lib/
 
