@@ -5,6 +5,7 @@
 	var $ = require('jquery'),
 		$window = $(window),
 		$body = $(document.body),
+		$loader = $('#loader'),
 		$dropZone = $('#drop-zone'),
 		$fritzXmlFile = $('#fritzxml-file'),
 		$fritzXmlText = $('#fritzxml-text'),
@@ -44,6 +45,7 @@
 	$deleteAll.on('click', deleteAll);
 
 	$version.text(version.hash);
+	$loader.fadeOut();
 
 	function dragenter(e) {
 		lastTarget = e.target;
@@ -234,3 +236,4 @@
 		$vCards.text('');
 	}
 }());
+
