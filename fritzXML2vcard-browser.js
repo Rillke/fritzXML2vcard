@@ -17,6 +17,7 @@
 	var $ = require('jquery'),
 	    $window = $(window),
 	    $body = $(document.body),
+	    $loader = $('#loader'),
 	    $dropZone = $('#drop-zone'),
 	    $fritzXmlFile = $('#fritzxml-file'),
 	    $fritzXmlText = $('#fritzxml-text'),
@@ -57,6 +58,7 @@
 	$deleteAll.on('click', deleteAll);
 
 	$version.text(version.hash);
+	$loader.fadeOut();
 
 	function dragenter(e) {
 		lastTarget = e.target;
@@ -360,8 +362,8 @@
 
 module.exports = {
 	tag: null,
-	hash: '1c4f62f',
-	timestamp: 1535048903
+	hash: 'eb0724c',
+	timestamp: 1535099906
 };
 },{}],5:[function(require,module,exports){
 'use strict'
