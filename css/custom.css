@@ -73,6 +73,12 @@
 
 #get-all-container {
 	text-align: center;
+	padding: 1em 0;
+	background: #f0f2f5;
+	line-height: 1.9;
+	border: 1px solid #D1D1D1;
+	margin-top: -2px;
+	border-top: 0;
 }
 
 .nowrap {

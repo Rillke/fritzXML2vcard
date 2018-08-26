@@ -43,7 +43,7 @@
 					Or paste Fritz!Box phone book XML:
 					<textarea class="u-full-width" id="fritzxml-text" name="fritzxml-text"
 					 placeholder="Fritz!Box phone book XML"></textarea>
-					<button id="run" class="button-primary">Convert to vCards</button>
+					<button id="run">Convert to vCards</button>
 					<div><b class="far fa-lightbulb"></b> Convert multiple phone books, remove those vCards you do not require and download the remaining cards in a zip archive.</div>
 				</div>
 				<div id="output" class="six columns">
@@ -71,10 +71,13 @@
 					</ul>
 					</div>
 					<div id="get-all-container">
-						<a href="#get-all" id="get-all" class="nowrap"><b class="fas fa-download"></b>Get all vCards as zip</a>
+						<a href="#get-all" id="get-all" class="nowrap button button-primary"><b class="fas fa-download"></b> vCards as zip</a>
 						<span class="space"></span>
-						<a href="#delete-all" id="delete-all" class="nowrap"><b class="fas fa-trash-alt"></b> Delete list</a>
+						<a href="#get-multi" id="get-multi" class="nowrap button"><b class="far fa-address-book"></b> Multi-vCard</a>
+						<span class="space"></span>
+						<a href="#delete-all" id="delete-all" class="nowrap button"><b class="fas fa-trash-alt"></b> Delete list</a>
 					</div>
+					<div><b class="far fa-lightbulb"></b> Multi-vCard (multiple vCards in one file) aren't supported by all phone book programs. For best compatibility, download the zip, and extract it, or try both approaches.</div>
 				</div>
 			</div>
 		</section>
