@@ -13,9 +13,11 @@
 		$output = $('#output'),
 		$vCards = $('#vcards'),
 		$getAll = $('#get-all'),
+		$getMulti = $('#get-multi'),
 		$deleteAll = $('#delete-all'),
 		$vCardTemplate = $('#vcf-template').detach(),
 		$version = $('#version'),
+		baseName = 'vCards_from_FritzBox_Phone_book',
 		libConvert = require('./lib-convert'),
 		// https://github.com/zenorocha/clipboard.js/issues/535
 		ClipboardJS = require('clipboard/dist/clipboard.min'),
@@ -32,6 +34,7 @@
 	$window.on('dragenter', dragenter).on('dragleave', dragleave);
 	$dropZone.on('drop', dropped).on('dragover', dragover);
 	$fritzXmlFile.on('change', fileInputChanged);
+	$fritzXmlText.on('change input', textInputChanged);
 	$run.on('click', run);
 
 	$body.on('click', 'a[href="#view"]', viewVCard);
@@ -42,6 +45,7 @@
 	$body.on('click', 'a[href="#delete"]', deleteVCard);
 
 	$getAll.on('click', getAll);
+	$getMulti.on('click', getMulti);
 	$deleteAll.on('click', deleteAll);
 
 	$version.text(version.hash);
@@ -114,6 +118,12 @@
 		}
 	}
 
+	function textInputChanged() {
+		if ($fritzXmlText.val().length) {
+			$run.addClass('button-primary');
+		}
+	}
+
 	function gotXmlFile(xmlFile, ev) {
 		var fileReader = new FileReader();
 		fileReader.onload = function() {
@@ -126,11 +136,20 @@
 		};
 		// Assume UTF-8 coded files
 		fileReader.readAsText(xmlFile);
+		if (xmlFile && xmlFile.name && /(?:fritz|xml)/.test(xmlFile.name)) {
+			baseName = xmlFile.name.replace(/(.+)\.\w+$/, '$1');
+		}
 	}
 
 	function run() {
 		var fritzXML = $fritzXmlText.val(),
 			vCards, vCardStrings, vCardObjects;
+
+		// prevent duplicating contacts by double-clicking
+		$run.attr('disabled', 'disabled');
+		setTimeout(function() {
+			$run.removeAttr('disabled');
+		}, 2000);
 
 		try {
 			vCards = libConvert.fritzXML2vcardObjects(fritzXML);
@@ -227,8 +246,27 @@
 				type: 'blob'
 			})
 			.then(function(content) {
-				FileSaver.saveAs(content, 'vCards_from_FritzBox_Phone_book.zip');
+				FileSaver.saveAs(content, baseName + '.zip');
 			});
+	}
+
+	function getMulti(e) {
+		e.preventDefault();
+		var multiCard = [],
+			blob;
+
+		$vCards.find('li').each(function() {
+			var $vCard = $(this),
+				vCard = $vCard.data('card');
+
+			multiCard.push(vCard);
+		});
+
+		blob = new Blob([multiCard.join('\r\n')], {
+			type: 'text/plain;charset=utf-8'
+		});
+
+		FileSaver.saveAs(blob, baseName + '.vcf');
 	}
 
 	function deleteAll(e) {
