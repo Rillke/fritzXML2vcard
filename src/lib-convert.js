@@ -100,9 +100,9 @@
 	}
 
 	/**
-	 * @var string FritzBox Phone book XML string
-	 * @var string Area code to use if number does not contain one
-	 * @var string Country code to use if number does not contain one
+	 * @var string xml_string FritzBox Phone book XML string
+	 * @var string [area_code] Area code to prefix if number does not contain one
+	 * @var string [country_code] Country code to prefix if number does not contain one
 	 * @return object Hash mapping suggested file names to vCard strings
 	 */
 	module.exports.fritzXML2vcard = function ( xml_string, area_code, country_code ) {
@@ -110,9 +110,9 @@
 	};
 
 	/**
-	 * @var string FritzBox Phone book XML string
-	 * @var string Area code to use if number does not contain one
-	 * @var string Country code to use if number does not contain one
+	 * @var string xml_string FritzBox Phone book XML string
+	 * @var string [area_code] Area code to prefix if number does not contain one
+	 * @var string [country_code] Country code to prefix if number does not contain one
 	 * @return object Hash {vCardStrings:{},vCardObjects:{}}
 	 *         vCardStrings: Mapping suggested file names to vCard strings
 	 *         vCardObjects: Mapping suggested file names to vCard objects
