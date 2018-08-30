@@ -7,8 +7,11 @@
 		$body = $(document.body),
 		$loader = $('#loader'),
 		$dropZone = $('#drop-zone'),
+		$inputForm = $('#input-form'),
 		$fritzXmlFile = $('#fritzxml-file'),
 		$fritzXmlText = $('#fritzxml-text'),
+		$areaCode = $('#area-code'),
+		$countryCode = $('#country-code'),
 		$run = $('#run'),
 		$output = $('#output'),
 		$vCards = $('#vcards'),
@@ -35,7 +38,7 @@
 	$dropZone.on('drop', dropped).on('dragover', dragover);
 	$fritzXmlFile.on('change', fileInputChanged);
 	$fritzXmlText.on('change input', textInputChanged);
-	$run.on('click', run);
+	$inputForm.on('submit', run);
 
 	$body.on('click', 'a[href="#view"]', viewVCard);
 	$body.on('click', 'a[href="#get"]', getVCard);
@@ -141,8 +144,12 @@
 		}
 	}
 
-	function run() {
+	function run(e) {
+		e.preventDefault();
+
 		var fritzXML = $fritzXmlText.val(),
+			areaCode = $areaCode.val(),
+			countryCode = $countryCode.val(),
 			vCards, vCardStrings, vCardObjects;
 
 		// prevent duplicating contacts by double-clicking
@@ -152,7 +159,7 @@
 		}, 2000);
 
 		try {
-			vCards = libConvert.fritzXML2vcardObjects(fritzXML);
+			vCards = libConvert.fritzXML2vcardObjects(fritzXML, areaCode, countryCode);
 			vCardStrings = vCards.vCardStrings;
 			vCardObjects = vCards.vCardObjects;
 		} catch (ex) {

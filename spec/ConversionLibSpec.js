@@ -8,7 +8,9 @@ describe("lib-convert", function() {
   var fritzJSON = fs.readFileSync(__dirname +
     '/fritz-phonebook.json', 'utf8');
   var fritzVCard = fs.readFileSync(__dirname +
-    '/fritz-phonebook.vcard.json', 'utf8');
+    '/fritz-phonebook.vcard.wo-area-code-wo-country-code.json', 'utf8');
+  var fritzVCardAreaCountry = fs.readFileSync(__dirname +
+    '/fritz-phonebook.vcard.w-area-code-w-country-code.json', 'utf8');
   var XML;
   var vCard;
 
@@ -21,7 +23,7 @@ describe("lib-convert", function() {
     expect(JSON.parse(fritzJSON)).toEqual(parsedXML);
   });
 
-  it('lib-convert', function() {
+  it('lib-convert: No area code, no country code', function() {
     expect(srcConvert.fritzXML2vcard).toEqual(jasmine.any(Function));
     expect(libConvert.fritzXML2vcard).toEqual(jasmine.any(Function));
 
@@ -44,4 +46,26 @@ describe("lib-convert", function() {
     expect(fritzVCard).toEqual(vCardsFromSrc);
     expect(fritzVCard).toEqual(vCardsFromLib);
   });
+
+  it('lib-convert: Area code, Country code', function() {
+    var vCardsFromSrc, vCardsFromLib;
+    expect(vCardsFromSrc = srcConvert.fritzXML2vcard(fritzXML, '030', '+49')).toEqual(
+      jasmine.any(Object));
+    expect(vCardsFromLib = libConvert.fritzXML2vcard(fritzXML, '030', '+49')).toEqual(
+      jasmine.any(Object));
+
+    // Re-create fritzbox vcard
+    // fs.writeFileSync(__dirname + '/fritz-phonebook.vcard.w-area-code-w-country-code.json',
+    //   JSON.stringify(vCardsFromLib),'utf8');
+
+    vCardsFromSrc = JSON.parse(JSON.stringify(vCardsFromSrc).replace(
+      /REV:[^"\n\r]+/g, 'REV:'));
+    vCardsFromLib = JSON.parse(JSON.stringify(vCardsFromLib).replace(
+      /REV:[^"\n\r]+/g, 'REV:'));
+    fritzVCardAreaCountry = JSON.parse(fritzVCardAreaCountry.replace(/REV:[^"\n\r]+/g, 'REV:'));
+
+    expect(fritzVCardAreaCountry).toEqual(vCardsFromSrc);
+    expect(fritzVCardAreaCountry).toEqual(vCardsFromLib);
+  });
 });
+
