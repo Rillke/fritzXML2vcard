@@ -138,3 +138,7 @@
 	font-size: 400%;
 }
 
+input:invalid {
+	border: solid 1px red;
+}
+

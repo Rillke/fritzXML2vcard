@@ -36,15 +36,20 @@
 		<section class="coversion" id="coversion">
 			<div class="row">
 				<div class="six columns">
-					<h2>In: Fritz!Box XML <b class="fas fa-code"></b></h2>
-					Select a file from your computer:
-					<input type="file" class="u-full-width" id="fritzxml-file" name="fritzxml-file"
-					 accept="application/xml, text/xml, *.xml" /><br />
-					Or paste Fritz!Box phone book XML:
-					<textarea class="u-full-width" id="fritzxml-text" name="fritzxml-text"
-					 placeholder="Fritz!Box phone book XML"></textarea>
-					<button id="run">Convert to vCards</button>
-					<div><b class="far fa-lightbulb"></b> Convert multiple phone books, remove those vCards you do not require and download the remaining cards in a zip archive.</div>
+					<form id="input-form" action="#">
+						<h2>In: Fritz!Box XML <b class="fas fa-code"></b></h2>
+						Drop your file to this page, or select a file from your computer:
+						<input type="file" class="u-full-width" id="fritzxml-file" name="fritzxml-file"
+						 accept="application/xml, text/xml, *.xml" /><br />
+						Or paste Fritz!Box phone book XML:
+						<textarea class="u-full-width" id="fritzxml-text" name="fritzxml-text"
+						 placeholder="Fritz!Box phone book XML" required></textarea>
+						<div><b class="far fa-lightbulb"></b> When entering a country or area code, numbers in the vCards that do not already have a country or area code will be prefixed.</div>
+						<input class="u-full-width" id="area-code" type="tel" pattern="[\d -#\*]*" placeholder="area code/ Ortsvorwahl (e.g. 030)" title="Only numbers, spaces, # and * are allowed in this field." />
+						<input class="u-full-width" id="country-code" type="tel" pattern="[\d -#\+\*]*" placeholder="country code/ Landesvorwahl (e.g. +49)" title="Only numbers, spaces, #, * and + are allowed in this field." />
+						<button id="run" name="submit" value="submit">Convert to vCards</button>
+					</form>
+					<div><b class="far fa-lightbulb"></b> Convert multiple phone books to vCards before downloading. Each time, you press the convert button, the contacts are added to the vCard result pane.</div>
 				</div>
 				<div id="output" class="six columns">
 					<h2>Out: vCards <b class="far fa-address-card"></b></h2>
