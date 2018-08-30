@@ -35,7 +35,8 @@ mkdir -p /path/to/output/dir
 
 ```javascript
 var libConvert = require('fritz-xml-2vcard');
-var result = libConvert.fritzXML2vcard(xmlString);
+// area code and country code are optional arguments
+var result = libConvert.fritzXML2vcard(xmlString, '030', '+49');
 for (var vcfFile in result) {
 	if (result.hasOwnProperty(vcfFile)) {
 		fs.writeFileSync(outputDir + '/' + vcfFile, result[vcfFile]);
@@ -61,10 +62,10 @@ Get [fritzXML2vcard-browser-api-min.js](https://raw.githubusercontent.com/Rillke
 		var fritzXML = '<?xml version="1.0" encoding="utf-8"?>' +
 			'<phonebooks><phonebook name="Telefonbuch">' +
 			'<contact><person><realName>Test GmbH</realName></person>' +
-			'<telephony nid="2"><number type="work" prio="1" id="0">01234 567890</number>' +
-			'<number type="fax_work" prio="0" id="1">(01234) 56789-2</number></telephony>' +
+			'<telephony nid="2"><number type="work" prio="1" id="0">(01234) 567890</number>' +
+			'<number type="fax_work" prio="0" id="1">56789-2</number></telephony>' +
 			'</contact></phonebook></phonebooks>';
-		var vCards = window.libConvert.fritzXML2vcard(fritzXML);
+		var vCards = window.libConvert.fritzXML2vcard(fritzXML, '030', '+49');
 		console.log(vCards);
 		for (var vcfFile in vCards) {
 			if (vCards.hasOwnProperty(vcfFile)) {
