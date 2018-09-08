@@ -442,8 +442,8 @@
 
 module.exports = {
 	tag: null,
-	hash: '54149df',
-	timestamp: 1535610361
+	hash: '51b0747',
+	timestamp: 1536401290
 };
 },{}],5:[function(require,module,exports){
 'use strict'
