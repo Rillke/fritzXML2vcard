@@ -2,7 +2,7 @@
   "name": "fritz-xml-2vcard",
   "version": "3.0.0",
   "description": "Convert FRITZ!Box address book XML format to vcards.",
-  "main": "lib-convert.js",
+  "main": "src/lib-convert.js",
   "bin": "./convert.js",
   "dependencies": {
     "pixl-xml": "^1.0.13",
