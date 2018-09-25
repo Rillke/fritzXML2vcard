@@ -11,7 +11,8 @@
 		'home': 'homePhone',
 		'work': 'workPhone',
 		'fax_work': 'workFax',
-		'mobile': 'cellPhone'
+		'mobile': 'cellPhone',
+		'': 'otherPhone'
 	};
 
 	function needsAreaCode(number) {
@@ -53,7 +54,7 @@
 			}
 
 			if (contact.telephony && contact.telephony.number) {
-				if ( contact.telephony.number.type ) {
+				if ( !Array.isArray(contact.telephony.number) ) {
 					contact.telephony.number = [contact.telephony.number];
 				}
 

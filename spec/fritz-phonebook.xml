@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <phonebooks>
-	<phonebook name="Telefonbuch">
+	<phonebook owner="0" name="Telefonbuch">
 		<contact>
 			<category>0</category>
 			<person>
@@ -133,6 +133,19 @@
 			<features doorphone="0" />
 			<mod_time>1515444645</mod_time>
 			<uniqueid>9</uniqueid>
+		</contact>
+		<contact>
+			<category>0</category>
+			<person>
+				<realName>Wecker 1</realName>
+			</person>
+			<telephony>
+			<services></services>
+			<!-- numbers:1-->
+			<number type="" quickdial="" vanity="" prio="1" >**41</number>
+			<!-- idx:11 -->
+			<!-- ringtoneidx:nil -->
+			</telephony>
 		</contact>
 	</phonebook>
 </phonebooks>

@@ -34,7 +34,7 @@ describe("lib-convert", function() {
       jasmine.any(Object));
 
     // Re-create fritzbox vcard
-    // fs.writeFileSync(__dirname + '/fritz-phonebook.vcard.json',
+    // fs.writeFileSync(__dirname + '/fritz-phonebook.vcard.wo-area-code-wo-country-code.json',
     //   JSON.stringify(vCardsFromLib),'utf8');
 
     vCardsFromSrc = JSON.parse(JSON.stringify(vCardsFromSrc).replace(
