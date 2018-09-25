@@ -288,7 +288,8 @@
 		'home': 'homePhone',
 		'work': 'workPhone',
 		'fax_work': 'workFax',
-		'mobile': 'cellPhone'
+		'mobile': 'cellPhone',
+		'': 'otherPhone'
 	};
 
 	function needsAreaCode(number) {
@@ -337,7 +338,7 @@
 				}
 
 				if (contact.telephony && contact.telephony.number) {
-					if (contact.telephony.number.type) {
+					if (!Array.isArray(contact.telephony.number)) {
 						contact.telephony.number = [contact.telephony.number];
 					}
 
@@ -442,8 +443,8 @@
 
 module.exports = {
 	tag: null,
-	hash: '2c38d0e',
-	timestamp: 1537822703
+	hash: '526f3be',
+	timestamp: 1537860858
 };
 },{}],5:[function(require,module,exports){
 'use strict'
