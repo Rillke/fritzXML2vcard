@@ -443,8 +443,8 @@
 
 module.exports = {
 	tag: null,
-	hash: 'b7f7106',
-	timestamp: 1537860885
+	hash: '4561efc',
+	timestamp: 1564171126
 };
 },{}],5:[function(require,module,exports){
 'use strict'
@@ -3433,7 +3433,7 @@ module.exports = Array.isArray || function (arr) {
 },{}],18:[function(require,module,exports){
 /*
     A simple jQuery modal (http://github.com/kylefox/jquery-modal)
-    Version 0.9.1
+    Version 0.9.2
 */
 
 (function (factory) {
@@ -3614,7 +3614,7 @@ module.exports = Array.isArray || function (arr) {
 
     //Return context for custom events
     _ctx: function() {
-      return { elm: this.$elm, $elm: this.$elm, $blocker: this.$blocker, options: this.options };
+      return { elm: this.$elm, $elm: this.$elm, $blocker: this.$blocker, options: this.options, $anchor: this.anchor };
     }
   };
 
