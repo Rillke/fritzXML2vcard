@@ -443,8 +443,8 @@
 
 module.exports = {
 	tag: null,
-	hash: '24feecf',
-	timestamp: 1564176947
+	hash: '350a619',
+	timestamp: 1565347697
 };
 },{}],5:[function(require,module,exports){
 'use strict'
@@ -514,7 +514,8 @@ function toByteArray (b64) {
     ? validLen - 4
     : validLen
 
-  for (var i = 0; i < len; i += 4) {
+  var i
+  for (i = 0; i < len; i += 4) {
     tmp =
       (revLookup[b64.charCodeAt(i)] << 18) |
       (revLookup[b64.charCodeAt(i + 1)] << 12) |
