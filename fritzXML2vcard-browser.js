@@ -443,8 +443,8 @@
 
 module.exports = {
 	tag: null,
-	hash: '87cdd26',
-	timestamp: 1588247861
+	hash: '65d00d2',
+	timestamp: 1588247873
 };
 },{}],5:[function(require,module,exports){
 'use strict'
@@ -15416,7 +15416,7 @@ JSZip.defaults = require('./defaults');
 
 // TODO find a better way to handle this version,
 // a require('package.json').version doesn't work with webpack, see #327
-JSZip.version = "3.2.0";
+JSZip.version = "3.4.0";
 
 JSZip.loadAsync = function (content, options) {
     return new JSZip().loadAsync(content, options);
