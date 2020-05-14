@@ -443,8 +443,8 @@
 
 module.exports = {
 	tag: null,
-	hash: '7b9b8b3',
-	timestamp: 1588247900
+	hash: 'bf0fea7',
+	timestamp: 1589480512
 };
 },{}],5:[function(require,module,exports){
 'use strict'
