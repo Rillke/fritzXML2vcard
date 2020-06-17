@@ -443,8 +443,8 @@
 
 module.exports = {
 	tag: null,
-	hash: '72118de',
-	timestamp: 1590674977
+	hash: '16c2b74',
+	timestamp: 1592392702
 };
 },{}],5:[function(require,module,exports){
 'use strict'
@@ -15416,7 +15416,7 @@ JSZip.defaults = require('./defaults');
 
 // TODO find a better way to handle this version,
 // a require('package.json').version doesn't work with webpack, see #327
-JSZip.version = "3.4.0";
+JSZip.version = "3.5.0";
 
 JSZip.loadAsync = function (content, options) {
     return new JSZip().loadAsync(content, options);
@@ -18341,7 +18341,7 @@ ZipEntry.prototype = {
             this.extraFields = {};
         }
 
-        while (reader.index < end) {
+        while (reader.index + 4 < end) {
             extraFieldId = reader.readInt(2);
             extraFieldLength = reader.readInt(2);
             extraFieldValue = reader.readData(extraFieldLength);
@@ -18352,6 +18352,8 @@ ZipEntry.prototype = {
                 value: extraFieldValue
             };
         }
+
+        reader.setIndex(end);
     },
     /**
      * Apply an UTF8 transformation if needed.
