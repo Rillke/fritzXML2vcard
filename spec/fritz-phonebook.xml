@@ -114,6 +114,8 @@
 			<telephony nid="2">
 				<number type="home" prio="1" id="0">04567-98765</number>
 				<number type="mobile" prio="0" id="1">017700000001</number>
+				<number type="work" prio="0" id="2"></number>
+				<number type="fax_work" prio="0" id="3" />
 			</telephony>
 			<services />
 			<setup />

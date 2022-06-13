@@ -1,1 +1,245 @@
-{"phonebook":{"name":"Telefonbuch","owner":"0","contact":[{"category":"0","person":{"realName":"Test GmbH"},"telephony":{"nid":"2","number":[{"type":"work","prio":"1","id":"0","_Data":"01234 567890"},{"type":"fax_work","prio":"0","id":"1","_Data":"(01234) 56789-2"}]},"services":{"nid":"1","email":{"classifier":"private","id":"0","_Data":"info@example.com"}},"setup":"","features":{"doorphone":"0"},"mod_time":"1476188984","uniqueid":"2"},{"category":"","person":{"realName":"Guter Nachbar"},"telephony":{"nid":"1","number":{"type":"home","vanity":"","prio":"1","id":"0","_Data":"23456"}},"services":"","setup":{"ringTone":""},"mod_time":"1478438296","uniqueid":"1"},{"category":"0","person":{"realName":"Arzt, Very long name because it consists of Praxis and two names."},"telephony":{"nid":"1","number":{"type":"work","prio":"1","id":"0","_Data":"012345 34567890"}},"services":"","setup":"","features":{"doorphone":"0"},"mod_time":"1532104029","uniqueid":"3"},{"category":"","person":{"realName":"AVM Ansage (HD)"},"telephony":{"nid":"1","number":{"prio":"1","type":"work","quickdial":"65","id":"0","_Data":"500@hd-telefonie.avm.de"}},"services":"","setup":"","uniqueid":"5"},{"category":"0","person":{"realName":"Apostrophe' and german umlauts like ö and ü and ä - ß","imageURL":"file:///var/InternerSpeicher/FRITZ/fonpix/2245353675-0.jpg"},"telephony":{"nid":"1","number":{"type":"work","prio":"1","id":"0","_Data":"098765 54321"}},"services":"","setup":"","mod_time":"1524933691","uniqueid":"4","features":{"doorphone":"0"}},{"category":"0","person":{"realName":"Multiple work phone numbers"},"telephony":{"nid":"2","number":[{"type":"work","prio":"1","id":"0","_Data":"3333333 33332"},{"type":"work","prio":"0","id":"1","_Data":"(3333333) 33332-1"}]},"services":"","setup":"","features":{"doorphone":"0"},"mod_time":"1532104412","uniqueid":"6"},{"category":"0","person":{"realName":"An internation company","imageURL":"file:///var/InternerSpeicher/FRITZ/fonpix/281288883304-0.jpg"},"telephony":{"nid":"1","number":{"type":"work","prio":"1","id":"0","_Data":"0047-0123456780"}},"services":{"nid":"1","email":{"classifier":"private","id":"0","_Data":"example@example.no"}},"setup":"","features":{"doorphone":"0"},"mod_time":"1524932919","uniqueid":"7"},{"category":"1","person":{"realName":"Cellphone, Mr. Mobile"},"telephony":{"nid":"2","number":[{"type":"home","prio":"1","id":"0","_Data":"04567-98765"},{"type":"mobile","prio":"0","id":"1","_Data":"017700000001"}]},"services":"","setup":"","uniqueid":"8","features":{"doorphone":"0"},"mod_time":"1524932760"},{"category":"0","person":{"realName":"No telephony"},"services":{"nid":"1","email":{"classifier":"private","id":"0","_Data":"Info@example.com"}},"setup":"","features":{"doorphone":"0"},"mod_time":"1515444645","uniqueid":"9"},{"category":"0","person":{"realName":"Wecker 1"},"telephony":{"services": "","number":{"type":"","quickdial":"","vanity":"","prio":"1","_Data":"**41"}}}]}}
+{
+    "phonebook": {
+        "name": "Telefonbuch",
+        "owner": "0",
+        "contact": [{
+            "category": "0",
+            "person": {
+                "realName": "Test GmbH"
+            },
+            "telephony": {
+                "nid": "2",
+                "number": [{
+                    "type": "work",
+                    "prio": "1",
+                    "id": "0",
+                    "_Data": "01234 567890"
+                }, {
+                    "type": "fax_work",
+                    "prio": "0",
+                    "id": "1",
+                    "_Data": "(01234) 56789-2"
+                }]
+            },
+            "services": {
+                "nid": "1",
+                "email": {
+                    "classifier": "private",
+                    "id": "0",
+                    "_Data": "info@example.com"
+                }
+            },
+            "setup": "",
+            "features": {
+                "doorphone": "0"
+            },
+            "mod_time": "1476188984",
+            "uniqueid": "2"
+        }, {
+            "category": "",
+            "person": {
+                "realName": "Guter Nachbar"
+            },
+            "telephony": {
+                "nid": "1",
+                "number": {
+                    "type": "home",
+                    "vanity": "",
+                    "prio": "1",
+                    "id": "0",
+                    "_Data": "23456"
+                }
+            },
+            "services": "",
+            "setup": {
+                "ringTone": ""
+            },
+            "mod_time": "1478438296",
+            "uniqueid": "1"
+        }, {
+            "category": "0",
+            "person": {
+                "realName": "Arzt, Very long name because it consists of Praxis and two names."
+            },
+            "telephony": {
+                "nid": "1",
+                "number": {
+                    "type": "work",
+                    "prio": "1",
+                    "id": "0",
+                    "_Data": "012345 34567890"
+                }
+            },
+            "services": "",
+            "setup": "",
+            "features": {
+                "doorphone": "0"
+            },
+            "mod_time": "1532104029",
+            "uniqueid": "3"
+        }, {
+            "category": "",
+            "person": {
+                "realName": "AVM Ansage (HD)"
+            },
+            "telephony": {
+                "nid": "1",
+                "number": {
+                    "prio": "1",
+                    "type": "work",
+                    "quickdial": "65",
+                    "id": "0",
+                    "_Data": "500@hd-telefonie.avm.de"
+                }
+            },
+            "services": "",
+            "setup": "",
+            "uniqueid": "5"
+        }, {
+            "category": "0",
+            "person": {
+                "realName": "Apostrophe' and german umlauts like ö and ü and ä - ß",
+                "imageURL": "file:///var/InternerSpeicher/FRITZ/fonpix/2245353675-0.jpg"
+            },
+            "telephony": {
+                "nid": "1",
+                "number": {
+                    "type": "work",
+                    "prio": "1",
+                    "id": "0",
+                    "_Data": "098765 54321"
+                }
+            },
+            "services": "",
+            "setup": "",
+            "mod_time": "1524933691",
+            "uniqueid": "4",
+            "features": {
+                "doorphone": "0"
+            }
+        }, {
+            "category": "0",
+            "person": {
+                "realName": "Multiple work phone numbers"
+            },
+            "telephony": {
+                "nid": "2",
+                "number": [{
+                    "type": "work",
+                    "prio": "1",
+                    "id": "0",
+                    "_Data": "3333333 33332"
+                }, {
+                    "type": "work",
+                    "prio": "0",
+                    "id": "1",
+                    "_Data": "(3333333) 33332-1"
+                }]
+            },
+            "services": "",
+            "setup": "",
+            "features": {
+                "doorphone": "0"
+            },
+            "mod_time": "1532104412",
+            "uniqueid": "6"
+        }, {
+            "category": "0",
+            "person": {
+                "realName": "An internation company",
+                "imageURL": "file:///var/InternerSpeicher/FRITZ/fonpix/281288883304-0.jpg"
+            },
+            "telephony": {
+                "nid": "1",
+                "number": {
+                    "type": "work",
+                    "prio": "1",
+                    "id": "0",
+                    "_Data": "0047-0123456780"
+                }
+            },
+            "services": {
+                "nid": "1",
+                "email": {
+                    "classifier": "private",
+                    "id": "0",
+                    "_Data": "example@example.no"
+                }
+            },
+            "setup": "",
+            "features": {
+                "doorphone": "0"
+            },
+            "mod_time": "1524932919",
+            "uniqueid": "7"
+        }, {
+            "category": "1",
+            "person": {
+                "realName": "Cellphone, Mr. Mobile"
+            },
+            "telephony": {
+                "nid": "2",
+                "number": [{
+                    "type": "home",
+                    "prio": "1",
+                    "id": "0",
+                    "_Data": "04567-98765"
+                }, {
+                    "type": "mobile",
+                    "prio": "0",
+                    "id": "1",
+                    "_Data": "017700000001"
+                }, {
+                    "type": "work",
+                    "prio": "0",
+                    "id": "2"
+                }, {
+                    "type": "fax_work",
+                    "prio": "0",
+                    "id": "3"
+                }]
+            },
+            "services": "",
+            "setup": "",
+            "uniqueid": "8",
+            "features": {
+                "doorphone": "0"
+            },
+            "mod_time": "1524932760"
+        }, {
+            "category": "0",
+            "person": {
+                "realName": "No telephony"
+            },
+            "services": {
+                "nid": "1",
+                "email": {
+                    "classifier": "private",
+                    "id": "0",
+                    "_Data": "Info@example.com"
+                }
+            },
+            "setup": "",
+            "features": {
+                "doorphone": "0"
+            },
+            "mod_time": "1515444645",
+            "uniqueid": "9"
+        }, {
+            "category": "0",
+            "person": {
+                "realName": "Wecker 1"
+            },
+            "telephony": {
+                "services": "",
+                "number": {
+                    "type": "",
+                    "quickdial": "",
+                    "vanity": "",
+                    "prio": "1",
+                    "_Data": "**41"
+                }
+            }
+        }]
+    }
+}

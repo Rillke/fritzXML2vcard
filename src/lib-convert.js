@@ -59,7 +59,7 @@
 				}
 
 				for (var number of contact.telephony.number) {
-					if (number.type in phonePropertyMapping) {
+					if (number.type in phonePropertyMapping && number._Data) {
 						if (!card[phonePropertyMapping[number.type]]) {
 							card[phonePropertyMapping[number.type]] = [];
 						}
@@ -71,7 +71,7 @@
 							phoneNumber.push(area_code);
 						}
 
-						if (country_code && needsCountryCode(cleanPhoneNumber) && 
+						if (country_code && needsCountryCode(cleanPhoneNumber) &&
 							(area_code || !needsAreaCode(cleanPhoneNumber))) {
 								// Try eliminating leading 0, if exists
 								phoneNumber[0] = phoneNumber[0].replace(/^([\(]*)0/, '$1');
