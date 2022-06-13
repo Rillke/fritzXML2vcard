@@ -86,7 +86,7 @@
 						for (var _iterator2 = contact.telephony.number[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 							var number = _step2.value;
 
-							if (number.type in phonePropertyMapping) {
+							if (number.type in phonePropertyMapping && number._Data) {
 								if (!card[phonePropertyMapping[number.type]]) {
 									card[phonePropertyMapping[number.type]] = [];
 								}

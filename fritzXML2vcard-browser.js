@@ -350,7 +350,7 @@
 						for (var _iterator2 = contact.telephony.number[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 							var number = _step2.value;
 
-							if (number.type in phonePropertyMapping) {
+							if (number.type in phonePropertyMapping && number._Data) {
 								if (!card[phonePropertyMapping[number.type]]) {
 									card[phonePropertyMapping[number.type]] = [];
 								}
@@ -443,8 +443,8 @@
 
 module.exports = {
 	tag: null,
-	hash: 'aa7b027',
-	timestamp: 1655145131
+	hash: '6882e5c',
+	timestamp: 1655146702
 };
 },{}],5:[function(require,module,exports){
 
