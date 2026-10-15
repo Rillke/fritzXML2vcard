@@ -1,232 +1,171 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-'use strict';
-
 /* jshint node: true, esversion: 6 */
 (function () {
-	'use strict';
+  'use strict';
 
-	window.libConvert = require('./lib-convert');
+  window.libConvert = require('./lib-convert');
 })();
 },{"./lib-convert":2}],2:[function(require,module,exports){
-'use strict';
-
 /* jshint node: true, esversion: 6 */
 (function () {
-	'use strict';
+  'use strict';
 
-	// load modules
+  // load modules
+  var XML = require('pixl-xml'),
+    vCard = require('vcards-js');
 
-	var XML = require('pixl-xml'),
-	    vCard = require('vcards-js');
+  // map FritzXML properties to vcf
+  var phonePropertyMapping = {
+    'home': 'homePhone',
+    'work': 'workPhone',
+    'fax_work': 'workFax',
+    'mobile': 'cellPhone',
+    '': 'otherPhone'
+  };
 
-	// map FritzXML properties to vcf
-	var phonePropertyMapping = {
-		'home': 'homePhone',
-		'work': 'workPhone',
-		'fax_work': 'workFax',
-		'mobile': 'cellPhone',
-		'': 'otherPhone'
-	};
-
-	function needsAreaCode(number) {
-		// starts with 1 to 9 (not 0, nor +), is an actual number
-		return (/^[1-9]\d+$/.test(number)
-		);
-	}
-
-	function needsCountryCode(number) {
-		// starts with 01 to 99 (not 00, nor +), is an actual number
-		// do not add country code if phone number comes without area code
-		// and area code wasn't supplied
-		return (/^[0-9][1-9]\d+$/.test(number)
-		);
-	}
-
-	function run(parsedXML, area_code, country_code) {
-		var contacts = parsedXML.phonebook.contact,
-		    output = { vCardStrings: {}, vCardObjects: {} };
-
-		country_code = (country_code || '').trim();
-		area_code = (area_code || '').trim();
-		if (country_code && /^0/.test(area_code)) {
-			area_code = area_code.slice(1);
-		}
-		if (!contacts.length) {
-			contacts = [contacts];
-		}
-		var _iteratorNormalCompletion = true;
-		var _didIteratorError = false;
-		var _iteratorError = undefined;
-
-		try {
-			for (var _iterator = contacts[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-				var contact = _step.value;
-
-				var card = vCard(),
-				    contactName = contact.person.realName.split(','),
-				    saveFileName = contact.person.realName.replace(/[ ,:\/\\]/gi, '_') + '.vcf';
-
-				if (contactName.length > 1) {
-					card.lastName = contactName.shift().trim();
-					card.firstName = contactName.join(',').trim();
-				} else {
-					card.lastName = contact.person.realName;
-				}
-
-				if (contact.telephony && contact.telephony.number) {
-					if (!Array.isArray(contact.telephony.number)) {
-						contact.telephony.number = [contact.telephony.number];
-					}
-
-					var _iteratorNormalCompletion2 = true;
-					var _didIteratorError2 = false;
-					var _iteratorError2 = undefined;
-
-					try {
-						for (var _iterator2 = contact.telephony.number[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-							var number = _step2.value;
-
-							if (number.type in phonePropertyMapping && number._Data) {
-								if (!card[phonePropertyMapping[number.type]]) {
-									card[phonePropertyMapping[number.type]] = [];
-								}
-								var phoneNumber = [number._Data.trim()],
-								    cleanPhoneNumber = phoneNumber[0].replace(/[\(\) -]/g, '');
-
-								if (area_code && needsAreaCode(cleanPhoneNumber)) {
-									phoneNumber.push(area_code);
-								}
-
-								if (country_code && needsCountryCode(cleanPhoneNumber) && (area_code || !needsAreaCode(cleanPhoneNumber))) {
-									// Try eliminating leading 0, if exists
-									phoneNumber[0] = phoneNumber[0].replace(/^([\(]*)0/, '$1');
-									phoneNumber.push(country_code);
-								}
-								card[phonePropertyMapping[number.type]].push(phoneNumber.reverse().join(' '));
-							}
-						}
-					} catch (err) {
-						_didIteratorError2 = true;
-						_iteratorError2 = err;
-					} finally {
-						try {
-							if (!_iteratorNormalCompletion2 && _iterator2.return) {
-								_iterator2.return();
-							}
-						} finally {
-							if (_didIteratorError2) {
-								throw _iteratorError2;
-							}
-						}
-					}
-				}
-
-				if (contact.services && contact.services.email) {
-					if (!contact.services.email._Data) {
-						contact.services.email = contact.services.email[0];
-					}
-					if (!card.email) {
-						card.email = [];
-					}
-					card.email.push(contact.services.email._Data);
-				}
-
-				output.vCardStrings[saveFileName] = card.getFormattedString();
-				output.vCardObjects[saveFileName] = card;
-			}
-		} catch (err) {
-			_didIteratorError = true;
-			_iteratorError = err;
-		} finally {
-			try {
-				if (!_iteratorNormalCompletion && _iterator.return) {
-					_iterator.return();
-				}
-			} finally {
-				if (_didIteratorError) {
-					throw _iteratorError;
-				}
-			}
-		}
-
-		return output;
-	}
-
-	/**
-  * @var string xml_string FritzBox Phone book XML string
-  * @var string [area_code] Area code to prefix if number does not contain one
-  * @var string [country_code] Country code to prefix if number does not contain one
-  * @return object Hash mapping suggested file names to vCard strings
-  */
-	module.exports.fritzXML2vcard = function (xml_string, area_code, country_code) {
-		return run(XML.parse(xml_string), area_code, country_code).vCardStrings;
-	};
-
-	/**
-  * @var string xml_string FritzBox Phone book XML string
-  * @var string [area_code] Area code to prefix if number does not contain one
-  * @var string [country_code] Country code to prefix if number does not contain one
-  * @return object Hash {vCardStrings:{},vCardObjects:{}}
-  *         vCardStrings: Mapping suggested file names to vCard strings
-  *         vCardObjects: Mapping suggested file names to vCard objects
-  */
-	module.exports.fritzXML2vcardObjects = function (xml_string, area_code, country_code) {
-		return run(XML.parse(xml_string), area_code, country_code);
-	};
-})();
-},{"pixl-xml":23,"vcards-js":28}],3:[function(require,module,exports){
-
-/**
- * Array#filter.
- *
- * @param {Array} arr
- * @param {Function} fn
- * @param {Object=} self
- * @return {Array}
- * @throw TypeError
- */
-
-module.exports = function (arr, fn, self) {
-  if (arr.filter) return arr.filter(fn, self);
-  if (void 0 === arr || null === arr) throw new TypeError;
-  if ('function' != typeof fn) throw new TypeError;
-  var ret = [];
-  for (var i = 0; i < arr.length; i++) {
-    if (!hasOwn.call(arr, i)) continue;
-    var val = arr[i];
-    if (fn.call(self, val, i, arr)) ret.push(val);
+  // map FritzXML email classifiers to vcf; anything else becomes a home email
+  var emailPropertyMapping = {
+    'work': 'workEmail',
+    'other': 'otherEmail'
+  };
+  function needsAreaCode(number) {
+    // starts with 1 to 9 (not 0, nor +), is an actual number
+    return /^[1-9]\d+$/.test(number);
   }
-  return ret;
-};
+  function needsCountryCode(number) {
+    // starts with 01 to 99 (not 00, nor +), is an actual number
+    // do not add country code if phone number comes without area code
+    // and area code wasn't supplied
+    return /^[0-9][1-9]\d+$/.test(number);
+  }
+  function uniqueFileName(baseName, usedFileNames) {
+    // Compare case-insensitively, so that files don't overwrite each
+    // other on case-insensitive file systems either
+    var fileName = baseName + '.vcf',
+      counter = 1;
+    while (usedFileNames.hasOwnProperty(fileName.toLowerCase())) {
+      counter++;
+      fileName = baseName + '_' + counter + '.vcf';
+    }
+    usedFileNames[fileName.toLowerCase()] = true;
+    return fileName;
+  }
+  function run(parsedXML, area_code, country_code) {
+    var contacts = parsedXML.phonebook.contact,
+      output = {
+        vCardStrings: {},
+        vCardObjects: {}
+      },
+      usedFileNames = {};
+    country_code = (country_code || '').trim();
+    area_code = (area_code || '').trim();
+    if (country_code && /^0/.test(area_code)) {
+      area_code = area_code.slice(1);
+    }
+    if (!contacts.length) {
+      contacts = [contacts];
+    }
+    for (var contact of contacts) {
+      var card = vCard(),
+        contactName = contact.person.realName.split(','),
+        saveFileName = uniqueFileName(contact.person.realName.replace(/[ ,:\/\\]/gi, '_'), usedFileNames);
+      if (contactName.length > 1) {
+        card.lastName = contactName.shift().trim();
+        card.firstName = contactName.join(',').trim();
+      } else {
+        card.lastName = contact.person.realName;
+      }
+      if (contact.telephony && contact.telephony.number) {
+        if (!Array.isArray(contact.telephony.number)) {
+          contact.telephony.number = [contact.telephony.number];
+        }
+        for (var number of contact.telephony.number) {
+          if (number.type in phonePropertyMapping && number._Data) {
+            if (!card[phonePropertyMapping[number.type]]) {
+              card[phonePropertyMapping[number.type]] = [];
+            }
+            var phoneNumber = [number._Data.trim()],
+              cleanPhoneNumber = phoneNumber[0].replace(/[\(\) -]/g, '');
+            if (area_code && needsAreaCode(cleanPhoneNumber)) {
+              phoneNumber.push(area_code);
+            }
+            if (country_code && needsCountryCode(cleanPhoneNumber) && (area_code || !needsAreaCode(cleanPhoneNumber))) {
+              // Try eliminating leading 0, if exists
+              phoneNumber[0] = phoneNumber[0].replace(/^([\(]*)0/, '$1');
+              phoneNumber.push(country_code);
+            }
+            card[phonePropertyMapping[number.type]].push(phoneNumber.reverse().join(' '));
+          }
+        }
+      }
+      if (contact.services && contact.services.email) {
+        if (!Array.isArray(contact.services.email)) {
+          contact.services.email = [contact.services.email];
+        }
+        for (var email of contact.services.email) {
+          // Elements without attributes are parsed as plain strings
+          var address = (typeof email === 'string' ? email : email._Data) || '',
+            emailProperty = emailPropertyMapping.hasOwnProperty(email.classifier) ? emailPropertyMapping[email.classifier] : 'email';
+          address = address.trim();
+          if (!address) {
+            continue;
+          }
+          if (!card[emailProperty]) {
+            card[emailProperty] = [];
+          }
+          card[emailProperty].push(address);
+        }
+      }
+      output.vCardStrings[saveFileName] = card.getFormattedString();
+      output.vCardObjects[saveFileName] = card;
+    }
+    return output;
+  }
 
-var hasOwn = Object.prototype.hasOwnProperty;
+  /**
+   * @var string xml_string FritzBox Phone book XML string
+   * @var string [area_code] Area code to prefix if number does not contain one
+   * @var string [country_code] Country code to prefix if number does not contain one
+   * @return object Hash mapping suggested file names to vCard strings
+   */
+  module.exports.fritzXML2vcard = function (xml_string, area_code, country_code) {
+    return run(XML.parse(xml_string), area_code, country_code).vCardStrings;
+  };
 
-},{}],4:[function(require,module,exports){
+  /**
+   * @var string xml_string FritzBox Phone book XML string
+   * @var string [area_code] Area code to prefix if number does not contain one
+   * @var string [country_code] Country code to prefix if number does not contain one
+   * @return object Hash {vCardStrings:{},vCardObjects:{}}
+   *         vCardStrings: Mapping suggested file names to vCard strings
+   *         vCardObjects: Mapping suggested file names to vCard objects
+   */
+  module.exports.fritzXML2vcardObjects = function (xml_string, area_code, country_code) {
+    return run(XML.parse(xml_string), area_code, country_code);
+  };
+})();
+},{"pixl-xml":57,"vcards-js":65}],3:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
-var filter = require('array-filter');
+var possibleNames = require('possible-typed-array-names');
 
+var g = typeof globalThis === 'undefined' ? global : globalThis;
+
+/** @type {import('.')} */
 module.exports = function availableTypedArrays() {
-	return filter([
-		'BigInt64Array',
-		'BigUint64Array',
-		'Float32Array',
-		'Float64Array',
-		'Int16Array',
-		'Int32Array',
-		'Int8Array',
-		'Uint16Array',
-		'Uint32Array',
-		'Uint8Array',
-		'Uint8ClampedArray'
-	], function (typedArray) {
-		return typeof global[typedArray] === 'function';
-	});
+	var /** @type {ReturnType<typeof availableTypedArrays>} */ out = [];
+	for (var i = 0; i < possibleNames.length; i++) {
+		if (typeof g[possibleNames[i]] === 'function') {
+			// @ts-expect-error
+			out[out.length] = possibleNames[i];
+		}
+	}
+	return out;
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"array-filter":3}],5:[function(require,module,exports){
+},{"possible-typed-array-names":58}],4:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -354,9 +293,7 @@ function fromByteArray (uint8) {
 
   // go through the array every three bytes, we'll deal with trailing stuff later
   for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
-    parts.push(encodeChunk(
-      uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)
-    ))
+    parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)))
   }
 
   // pad the end with zeros, but make sure to not forget the extra bytes
@@ -380,9 +317,9 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 (function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
@@ -2163,28 +2100,488 @@ function numberIsNaN (obj) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"base64-js":5,"buffer":7,"ieee754":17}],8:[function(require,module,exports){
+},{"base64-js":4,"buffer":6,"ieee754":41}],7:[function(require,module,exports){
 'use strict';
 
-/* globals
-	Atomics,
-	SharedArrayBuffer,
-*/
+var bind = require('function-bind');
 
-var undefined;
+var $apply = require('./functionApply');
+var $call = require('./functionCall');
+var $reflectApply = require('./reflectApply');
 
-var $TypeError = TypeError;
+/** @type {import('./actualApply')} */
+module.exports = $reflectApply || bind.call($call, $apply);
 
-var $gOPD = Object.getOwnPropertyDescriptor;
-if ($gOPD) {
-	try {
-		$gOPD({}, '');
-	} catch (e) {
-		$gOPD = null; // this is IE 8, which has a broken gOPD
+},{"./functionApply":9,"./functionCall":10,"./reflectApply":12,"function-bind":28}],8:[function(require,module,exports){
+'use strict';
+
+var bind = require('function-bind');
+var $apply = require('./functionApply');
+var actualApply = require('./actualApply');
+
+/** @type {import('./applyBind')} */
+module.exports = function applyBind() {
+	return actualApply(bind, $apply, arguments);
+};
+
+},{"./actualApply":7,"./functionApply":9,"function-bind":28}],9:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./functionApply')} */
+module.exports = Function.prototype.apply;
+
+},{}],10:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./functionCall')} */
+module.exports = Function.prototype.call;
+
+},{}],11:[function(require,module,exports){
+'use strict';
+
+var bind = require('function-bind');
+var $TypeError = require('es-errors/type');
+
+var $call = require('./functionCall');
+var $actualApply = require('./actualApply');
+
+/** @type {(args: [Function, thisArg?: unknown, ...args: unknown[]]) => Function} TODO FIXME, find a way to use import('.') */
+module.exports = function callBindBasic(args) {
+	if (args.length < 1 || typeof args[0] !== 'function') {
+		throw new $TypeError('a function is required');
+	}
+	return $actualApply(bind, $call, args);
+};
+
+},{"./actualApply":7,"./functionCall":10,"es-errors/type":23,"function-bind":28}],12:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./reflectApply')} */
+module.exports = typeof Reflect !== 'undefined' && Reflect && Reflect.apply;
+
+},{}],13:[function(require,module,exports){
+'use strict';
+
+var setFunctionLength = require('set-function-length');
+
+var $defineProperty = require('es-define-property');
+
+var callBindBasic = require('call-bind-apply-helpers');
+var applyBind = require('call-bind-apply-helpers/applyBind');
+
+module.exports = function callBind(originalFunction) {
+	var func = callBindBasic(arguments);
+	var adjustedLength = 1 + originalFunction.length - (arguments.length - 1);
+	return setFunctionLength(
+		func,
+		adjustedLength > 0 ? adjustedLength : 0,
+		true
+	);
+};
+
+if ($defineProperty) {
+	$defineProperty(module.exports, 'apply', { value: applyBind });
+} else {
+	module.exports.apply = applyBind;
+}
+
+},{"call-bind-apply-helpers":11,"call-bind-apply-helpers/applyBind":8,"es-define-property":17,"set-function-length":61}],14:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('get-intrinsic');
+
+var callBindBasic = require('call-bind-apply-helpers');
+
+/** @type {(thisArg: string, searchString: string, position?: number) => number} */
+var $indexOf = callBindBasic([GetIntrinsic('%String.prototype.indexOf%')]);
+
+/** @type {import('.')} */
+module.exports = function callBoundIntrinsic(name, allowMissing) {
+	/* eslint no-extra-parens: 0 */
+
+	var intrinsic = /** @type {(this: unknown, ...args: unknown[]) => unknown} */ (GetIntrinsic(name, !!allowMissing));
+	if (typeof intrinsic === 'function' && $indexOf(name, '.prototype.') > -1) {
+		return callBindBasic(/** @type {const} */ ([intrinsic]));
+	}
+	return intrinsic;
+};
+
+},{"call-bind-apply-helpers":11,"get-intrinsic":30}],15:[function(require,module,exports){
+'use strict';
+
+var $defineProperty = require('es-define-property');
+
+var $SyntaxError = require('es-errors/syntax');
+var $TypeError = require('es-errors/type');
+
+var gopd = require('gopd');
+
+/** @type {import('.')} */
+module.exports = function defineDataProperty(
+	obj,
+	property,
+	value
+) {
+	if (!obj || (typeof obj !== 'object' && typeof obj !== 'function')) {
+		throw new $TypeError('`obj` must be an object or a function`');
+	}
+	if (typeof property !== 'string' && typeof property !== 'symbol') {
+		throw new $TypeError('`property` must be a string or a symbol`');
+	}
+	if (arguments.length > 3 && typeof arguments[3] !== 'boolean' && arguments[3] !== null) {
+		throw new $TypeError('`nonEnumerable`, if provided, must be a boolean or null');
+	}
+	if (arguments.length > 4 && typeof arguments[4] !== 'boolean' && arguments[4] !== null) {
+		throw new $TypeError('`nonWritable`, if provided, must be a boolean or null');
+	}
+	if (arguments.length > 5 && typeof arguments[5] !== 'boolean' && arguments[5] !== null) {
+		throw new $TypeError('`nonConfigurable`, if provided, must be a boolean or null');
+	}
+	if (arguments.length > 6 && typeof arguments[6] !== 'boolean') {
+		throw new $TypeError('`loose`, if provided, must be a boolean');
+	}
+
+	var nonEnumerable = arguments.length > 3 ? arguments[3] : null;
+	var nonWritable = arguments.length > 4 ? arguments[4] : null;
+	var nonConfigurable = arguments.length > 5 ? arguments[5] : null;
+	var loose = arguments.length > 6 ? arguments[6] : false;
+
+	/* @type {false | TypedPropertyDescriptor<unknown>} */
+	var desc = !!gopd && gopd(obj, property);
+
+	if ($defineProperty) {
+		$defineProperty(obj, property, {
+			configurable: nonConfigurable === null && desc ? desc.configurable : !nonConfigurable,
+			enumerable: nonEnumerable === null && desc ? desc.enumerable : !nonEnumerable,
+			value: value,
+			writable: nonWritable === null && desc ? desc.writable : !nonWritable
+		});
+	} else if (loose || (!nonEnumerable && !nonWritable && !nonConfigurable)) {
+		// must fall back to [[Set]], and was not explicitly asked to make non-enumerable, non-writable, or non-configurable
+		obj[property] = value; // eslint-disable-line no-param-reassign
+	} else {
+		throw new $SyntaxError('This environment does not support defining a property as non-configurable, non-writable, or non-enumerable.');
+	}
+};
+
+},{"es-define-property":17,"es-errors/syntax":22,"es-errors/type":23,"gopd":35}],16:[function(require,module,exports){
+'use strict';
+
+var callBind = require('call-bind-apply-helpers');
+var gOPD = require('gopd');
+
+var hasProtoAccessor;
+try {
+	// eslint-disable-next-line no-extra-parens, no-proto
+	hasProtoAccessor = /** @type {{ __proto__?: typeof Array.prototype }} */ ([]).__proto__ === Array.prototype;
+} catch (e) {
+	if (!e || typeof e !== 'object' || !('code' in e) || e.code !== 'ERR_PROTO_ACCESS') {
+		throw e;
 	}
 }
 
-var throwTypeError = function () { throw new $TypeError(); };
+// eslint-disable-next-line no-extra-parens
+var desc = !!hasProtoAccessor && gOPD && gOPD(Object.prototype, /** @type {keyof typeof Object.prototype} */ ('__proto__'));
+
+var $Object = Object;
+var $getPrototypeOf = $Object.getPrototypeOf;
+
+/** @type {import('./get')} */
+module.exports = desc && typeof desc.get === 'function'
+	? callBind([desc.get])
+	: typeof $getPrototypeOf === 'function'
+		? /** @type {import('./get')} */ function getDunder(value) {
+			// eslint-disable-next-line eqeqeq
+			return $getPrototypeOf(value == null ? value : $Object(value));
+		}
+		: false;
+
+},{"call-bind-apply-helpers":11,"gopd":35}],17:[function(require,module,exports){
+'use strict';
+
+/** @type {import('.')} */
+var $defineProperty = Object.defineProperty || false;
+if ($defineProperty) {
+	try {
+		$defineProperty({}, 'a', { value: 1 });
+	} catch (e) {
+		// IE 8 has a broken defineProperty
+		$defineProperty = false;
+	}
+}
+
+module.exports = $defineProperty;
+
+},{}],18:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./eval')} */
+module.exports = EvalError;
+
+},{}],19:[function(require,module,exports){
+'use strict';
+
+/** @type {import('.')} */
+module.exports = Error;
+
+},{}],20:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./range')} */
+module.exports = RangeError;
+
+},{}],21:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./ref')} */
+module.exports = ReferenceError;
+
+},{}],22:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./syntax')} */
+module.exports = SyntaxError;
+
+},{}],23:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./type')} */
+module.exports = TypeError;
+
+},{}],24:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./uri')} */
+module.exports = URIError;
+
+},{}],25:[function(require,module,exports){
+'use strict';
+
+/** @type {import('.')} */
+module.exports = Object;
+
+},{}],26:[function(require,module,exports){
+'use strict';
+
+var isCallable = require('is-callable');
+
+var toStr = Object.prototype.toString;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+/** @type {<This, A extends readonly unknown[]>(arr: A, iterator: (this: This | void, value: A[number], index: number, arr: A) => void, receiver: This | undefined) => void} */
+var forEachArray = function forEachArray(array, iterator, receiver) {
+    for (var i = 0, len = array.length; i < len; i++) {
+        if (hasOwnProperty.call(array, i)) {
+            if (receiver == null) {
+                iterator(array[i], i, array);
+            } else {
+                iterator.call(receiver, array[i], i, array);
+            }
+        }
+    }
+};
+
+/** @type {<This, S extends string>(string: S, iterator: (this: This | void, value: S[number], index: number, string: S) => void, receiver: This | undefined) => void} */
+var forEachString = function forEachString(string, iterator, receiver) {
+    for (var i = 0, len = string.length; i < len; i++) {
+        // no such thing as a sparse string.
+        if (receiver == null) {
+            iterator(string.charAt(i), i, string);
+        } else {
+            iterator.call(receiver, string.charAt(i), i, string);
+        }
+    }
+};
+
+/** @type {<This, O>(obj: O, iterator: (this: This | void, value: O[keyof O], index: keyof O, obj: O) => void, receiver: This | undefined) => void} */
+var forEachObject = function forEachObject(object, iterator, receiver) {
+    for (var k in object) {
+        if (hasOwnProperty.call(object, k)) {
+            if (receiver == null) {
+                iterator(object[k], k, object);
+            } else {
+                iterator.call(receiver, object[k], k, object);
+            }
+        }
+    }
+};
+
+/** @type {(x: unknown) => x is readonly unknown[]} */
+function isArray(x) {
+    return toStr.call(x) === '[object Array]';
+}
+
+/** @type {import('.')._internal} */
+module.exports = function forEach(list, iterator, thisArg) {
+    if (!isCallable(iterator)) {
+        throw new TypeError('iterator must be a function');
+    }
+
+    var receiver;
+    if (arguments.length >= 3) {
+        receiver = thisArg;
+    }
+
+    if (isArray(list)) {
+        forEachArray(list, iterator, receiver);
+    } else if (typeof list === 'string') {
+        forEachString(list, iterator, receiver);
+    } else {
+        forEachObject(list, iterator, receiver);
+    }
+};
+
+},{"is-callable":44}],27:[function(require,module,exports){
+'use strict';
+
+/* eslint no-invalid-this: 1 */
+
+var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
+var toStr = Object.prototype.toString;
+var max = Math.max;
+var funcType = '[object Function]';
+
+var concatty = function concatty(a, b) {
+    var arr = [];
+
+    for (var i = 0; i < a.length; i += 1) {
+        arr[i] = a[i];
+    }
+    for (var j = 0; j < b.length; j += 1) {
+        arr[j + a.length] = b[j];
+    }
+
+    return arr;
+};
+
+var slicy = function slicy(arrLike, offset) {
+    var arr = [];
+    for (var i = offset || 0, j = 0; i < arrLike.length; i += 1, j += 1) {
+        arr[j] = arrLike[i];
+    }
+    return arr;
+};
+
+var joiny = function (arr, joiner) {
+    var str = '';
+    for (var i = 0; i < arr.length; i += 1) {
+        str += arr[i];
+        if (i + 1 < arr.length) {
+            str += joiner;
+        }
+    }
+    return str;
+};
+
+module.exports = function bind(that) {
+    var target = this;
+    if (typeof target !== 'function' || toStr.apply(target) !== funcType) {
+        throw new TypeError(ERROR_MESSAGE + target);
+    }
+    var args = slicy(arguments, 1);
+
+    var bound;
+    var binder = function () {
+        if (this instanceof bound) {
+            var result = target.apply(
+                this,
+                concatty(args, arguments)
+            );
+            if (Object(result) === result) {
+                return result;
+            }
+            return this;
+        }
+        return target.apply(
+            that,
+            concatty(args, arguments)
+        );
+
+    };
+
+    var boundLength = max(0, target.length - args.length);
+    var boundArgs = [];
+    for (var i = 0; i < boundLength; i++) {
+        boundArgs[i] = '$' + i;
+    }
+
+    bound = Function('binder', 'return function (' + joiny(boundArgs, ',') + '){ return binder.apply(this,arguments); }')(binder);
+
+    if (target.prototype) {
+        var Empty = function Empty() {};
+        Empty.prototype = target.prototype;
+        bound.prototype = new Empty();
+        Empty.prototype = null;
+    }
+
+    return bound;
+};
+
+},{}],28:[function(require,module,exports){
+'use strict';
+
+var implementation = require('./implementation');
+
+module.exports = Function.prototype.bind || implementation;
+
+},{"./implementation":27}],29:[function(require,module,exports){
+'use strict';
+
+/** @type {GeneratorFunctionConstructor | false} */
+var cached;
+
+/** @type {import('./index.js')} */
+module.exports = function getGeneratorFunction() {
+	if (typeof cached === 'undefined') {
+		try {
+			// eslint-disable-next-line no-new-func
+			cached = Function('return function* () {}')().constructor;
+		} catch (e) {
+			cached = false;
+		}
+	}
+	return cached;
+};
+
+
+},{}],30:[function(require,module,exports){
+'use strict';
+
+var undefined;
+
+var $Object = require('es-object-atoms');
+
+var $Error = require('es-errors');
+var $EvalError = require('es-errors/eval');
+var $RangeError = require('es-errors/range');
+var $ReferenceError = require('es-errors/ref');
+var $SyntaxError = require('es-errors/syntax');
+var $TypeError = require('es-errors/type');
+var $URIError = require('es-errors/uri');
+
+var abs = require('math-intrinsics/abs');
+var floor = require('math-intrinsics/floor');
+var max = require('math-intrinsics/max');
+var min = require('math-intrinsics/min');
+var pow = require('math-intrinsics/pow');
+var round = require('math-intrinsics/round');
+var sign = require('math-intrinsics/sign');
+
+var $Function = Function;
+
+// eslint-disable-next-line consistent-return
+var getEvalledConstructor = function (expressionSyntax) {
+	try {
+		return $Function('"use strict"; return (' + expressionSyntax + ').constructor;')();
+	} catch (e) {}
+};
+
+var $gOPD = require('gopd');
+var $defineProperty = require('es-define-property');
+
+var throwTypeError = function () {
+	throw new $TypeError();
+};
 var ThrowTypeError = $gOPD
 	? (function () {
 		try {
@@ -2204,176 +2601,304 @@ var ThrowTypeError = $gOPD
 
 var hasSymbols = require('has-symbols')();
 
-var getProto = Object.getPrototypeOf || function (x) { return x.__proto__; }; // eslint-disable-line no-proto
+var getProto = require('get-proto');
+var $ObjectGPO = require('get-proto/Object.getPrototypeOf');
+var $ReflectGPO = require('get-proto/Reflect.getPrototypeOf');
 
-var generator; // = function * () {};
-var generatorFunction = generator ? getProto(generator) : undefined;
-var asyncFn; // async function() {};
-var asyncFunction = asyncFn ? asyncFn.constructor : undefined;
-var asyncGen; // async function * () {};
-var asyncGenFunction = asyncGen ? getProto(asyncGen) : undefined;
-var asyncGenIterator = asyncGen ? asyncGen() : undefined;
+var $apply = require('call-bind-apply-helpers/functionApply');
+var $call = require('call-bind-apply-helpers/functionCall');
 
-var TypedArray = typeof Uint8Array === 'undefined' ? undefined : getProto(Uint8Array);
+var needsEval = {};
+
+var TypedArray = typeof Uint8Array === 'undefined' || !getProto ? undefined : getProto(Uint8Array);
 
 var INTRINSICS = {
+	__proto__: null,
+	'%AggregateError%': typeof AggregateError === 'undefined' ? undefined : AggregateError,
 	'%Array%': Array,
 	'%ArrayBuffer%': typeof ArrayBuffer === 'undefined' ? undefined : ArrayBuffer,
-	'%ArrayBufferPrototype%': typeof ArrayBuffer === 'undefined' ? undefined : ArrayBuffer.prototype,
-	'%ArrayIteratorPrototype%': hasSymbols ? getProto([][Symbol.iterator]()) : undefined,
-	'%ArrayPrototype%': Array.prototype,
-	'%ArrayProto_entries%': Array.prototype.entries,
-	'%ArrayProto_forEach%': Array.prototype.forEach,
-	'%ArrayProto_keys%': Array.prototype.keys,
-	'%ArrayProto_values%': Array.prototype.values,
+	'%ArrayIteratorPrototype%': hasSymbols && getProto ? getProto([][Symbol.iterator]()) : undefined,
 	'%AsyncFromSyncIteratorPrototype%': undefined,
-	'%AsyncFunction%': asyncFunction,
-	'%AsyncFunctionPrototype%': asyncFunction ? asyncFunction.prototype : undefined,
-	'%AsyncGenerator%': asyncGen ? getProto(asyncGenIterator) : undefined,
-	'%AsyncGeneratorFunction%': asyncGenFunction,
-	'%AsyncGeneratorPrototype%': asyncGenFunction ? asyncGenFunction.prototype : undefined,
-	'%AsyncIteratorPrototype%': asyncGenIterator && hasSymbols && Symbol.asyncIterator ? asyncGenIterator[Symbol.asyncIterator]() : undefined,
+	'%AsyncFunction%': needsEval,
+	'%AsyncGenerator%': needsEval,
+	'%AsyncGeneratorFunction%': needsEval,
+	'%AsyncIteratorPrototype%': needsEval,
 	'%Atomics%': typeof Atomics === 'undefined' ? undefined : Atomics,
+	'%BigInt%': typeof BigInt === 'undefined' ? undefined : BigInt,
+	'%BigInt64Array%': typeof BigInt64Array === 'undefined' ? undefined : BigInt64Array,
+	'%BigUint64Array%': typeof BigUint64Array === 'undefined' ? undefined : BigUint64Array,
 	'%Boolean%': Boolean,
-	'%BooleanPrototype%': Boolean.prototype,
 	'%DataView%': typeof DataView === 'undefined' ? undefined : DataView,
-	'%DataViewPrototype%': typeof DataView === 'undefined' ? undefined : DataView.prototype,
 	'%Date%': Date,
-	'%DatePrototype%': Date.prototype,
 	'%decodeURI%': decodeURI,
 	'%decodeURIComponent%': decodeURIComponent,
 	'%encodeURI%': encodeURI,
 	'%encodeURIComponent%': encodeURIComponent,
-	'%Error%': Error,
-	'%ErrorPrototype%': Error.prototype,
+	'%Error%': $Error,
 	'%eval%': eval, // eslint-disable-line no-eval
-	'%EvalError%': EvalError,
-	'%EvalErrorPrototype%': EvalError.prototype,
+	'%EvalError%': $EvalError,
+	'%Float16Array%': typeof Float16Array === 'undefined' ? undefined : Float16Array,
 	'%Float32Array%': typeof Float32Array === 'undefined' ? undefined : Float32Array,
-	'%Float32ArrayPrototype%': typeof Float32Array === 'undefined' ? undefined : Float32Array.prototype,
 	'%Float64Array%': typeof Float64Array === 'undefined' ? undefined : Float64Array,
-	'%Float64ArrayPrototype%': typeof Float64Array === 'undefined' ? undefined : Float64Array.prototype,
-	'%Function%': Function,
-	'%FunctionPrototype%': Function.prototype,
-	'%Generator%': generator ? getProto(generator()) : undefined,
-	'%GeneratorFunction%': generatorFunction,
-	'%GeneratorPrototype%': generatorFunction ? generatorFunction.prototype : undefined,
+	'%FinalizationRegistry%': typeof FinalizationRegistry === 'undefined' ? undefined : FinalizationRegistry,
+	'%Function%': $Function,
+	'%GeneratorFunction%': needsEval,
 	'%Int8Array%': typeof Int8Array === 'undefined' ? undefined : Int8Array,
-	'%Int8ArrayPrototype%': typeof Int8Array === 'undefined' ? undefined : Int8Array.prototype,
 	'%Int16Array%': typeof Int16Array === 'undefined' ? undefined : Int16Array,
-	'%Int16ArrayPrototype%': typeof Int16Array === 'undefined' ? undefined : Int8Array.prototype,
 	'%Int32Array%': typeof Int32Array === 'undefined' ? undefined : Int32Array,
-	'%Int32ArrayPrototype%': typeof Int32Array === 'undefined' ? undefined : Int32Array.prototype,
 	'%isFinite%': isFinite,
 	'%isNaN%': isNaN,
-	'%IteratorPrototype%': hasSymbols ? getProto(getProto([][Symbol.iterator]())) : undefined,
+	'%IteratorPrototype%': hasSymbols && getProto ? getProto(getProto([][Symbol.iterator]())) : undefined,
 	'%JSON%': typeof JSON === 'object' ? JSON : undefined,
-	'%JSONParse%': typeof JSON === 'object' ? JSON.parse : undefined,
 	'%Map%': typeof Map === 'undefined' ? undefined : Map,
-	'%MapIteratorPrototype%': typeof Map === 'undefined' || !hasSymbols ? undefined : getProto(new Map()[Symbol.iterator]()),
-	'%MapPrototype%': typeof Map === 'undefined' ? undefined : Map.prototype,
+	'%MapIteratorPrototype%': typeof Map === 'undefined' || !hasSymbols || !getProto ? undefined : getProto(new Map()[Symbol.iterator]()),
 	'%Math%': Math,
 	'%Number%': Number,
-	'%NumberPrototype%': Number.prototype,
-	'%Object%': Object,
-	'%ObjectPrototype%': Object.prototype,
-	'%ObjProto_toString%': Object.prototype.toString,
-	'%ObjProto_valueOf%': Object.prototype.valueOf,
+	'%Object%': $Object,
+	'%Object.getOwnPropertyDescriptor%': $gOPD,
 	'%parseFloat%': parseFloat,
 	'%parseInt%': parseInt,
 	'%Promise%': typeof Promise === 'undefined' ? undefined : Promise,
-	'%PromisePrototype%': typeof Promise === 'undefined' ? undefined : Promise.prototype,
-	'%PromiseProto_then%': typeof Promise === 'undefined' ? undefined : Promise.prototype.then,
-	'%Promise_all%': typeof Promise === 'undefined' ? undefined : Promise.all,
-	'%Promise_reject%': typeof Promise === 'undefined' ? undefined : Promise.reject,
-	'%Promise_resolve%': typeof Promise === 'undefined' ? undefined : Promise.resolve,
 	'%Proxy%': typeof Proxy === 'undefined' ? undefined : Proxy,
-	'%RangeError%': RangeError,
-	'%RangeErrorPrototype%': RangeError.prototype,
-	'%ReferenceError%': ReferenceError,
-	'%ReferenceErrorPrototype%': ReferenceError.prototype,
+	'%RangeError%': $RangeError,
+	'%ReferenceError%': $ReferenceError,
 	'%Reflect%': typeof Reflect === 'undefined' ? undefined : Reflect,
 	'%RegExp%': RegExp,
-	'%RegExpPrototype%': RegExp.prototype,
 	'%Set%': typeof Set === 'undefined' ? undefined : Set,
-	'%SetIteratorPrototype%': typeof Set === 'undefined' || !hasSymbols ? undefined : getProto(new Set()[Symbol.iterator]()),
-	'%SetPrototype%': typeof Set === 'undefined' ? undefined : Set.prototype,
+	'%SetIteratorPrototype%': typeof Set === 'undefined' || !hasSymbols || !getProto ? undefined : getProto(new Set()[Symbol.iterator]()),
 	'%SharedArrayBuffer%': typeof SharedArrayBuffer === 'undefined' ? undefined : SharedArrayBuffer,
-	'%SharedArrayBufferPrototype%': typeof SharedArrayBuffer === 'undefined' ? undefined : SharedArrayBuffer.prototype,
 	'%String%': String,
-	'%StringIteratorPrototype%': hasSymbols ? getProto(''[Symbol.iterator]()) : undefined,
-	'%StringPrototype%': String.prototype,
+	'%StringIteratorPrototype%': hasSymbols && getProto ? getProto(''[Symbol.iterator]()) : undefined,
 	'%Symbol%': hasSymbols ? Symbol : undefined,
-	'%SymbolPrototype%': hasSymbols ? Symbol.prototype : undefined,
-	'%SyntaxError%': SyntaxError,
-	'%SyntaxErrorPrototype%': SyntaxError.prototype,
+	'%SyntaxError%': $SyntaxError,
 	'%ThrowTypeError%': ThrowTypeError,
 	'%TypedArray%': TypedArray,
-	'%TypedArrayPrototype%': TypedArray ? TypedArray.prototype : undefined,
 	'%TypeError%': $TypeError,
-	'%TypeErrorPrototype%': $TypeError.prototype,
 	'%Uint8Array%': typeof Uint8Array === 'undefined' ? undefined : Uint8Array,
-	'%Uint8ArrayPrototype%': typeof Uint8Array === 'undefined' ? undefined : Uint8Array.prototype,
 	'%Uint8ClampedArray%': typeof Uint8ClampedArray === 'undefined' ? undefined : Uint8ClampedArray,
-	'%Uint8ClampedArrayPrototype%': typeof Uint8ClampedArray === 'undefined' ? undefined : Uint8ClampedArray.prototype,
 	'%Uint16Array%': typeof Uint16Array === 'undefined' ? undefined : Uint16Array,
-	'%Uint16ArrayPrototype%': typeof Uint16Array === 'undefined' ? undefined : Uint16Array.prototype,
 	'%Uint32Array%': typeof Uint32Array === 'undefined' ? undefined : Uint32Array,
-	'%Uint32ArrayPrototype%': typeof Uint32Array === 'undefined' ? undefined : Uint32Array.prototype,
-	'%URIError%': URIError,
-	'%URIErrorPrototype%': URIError.prototype,
+	'%URIError%': $URIError,
 	'%WeakMap%': typeof WeakMap === 'undefined' ? undefined : WeakMap,
-	'%WeakMapPrototype%': typeof WeakMap === 'undefined' ? undefined : WeakMap.prototype,
+	'%WeakRef%': typeof WeakRef === 'undefined' ? undefined : WeakRef,
 	'%WeakSet%': typeof WeakSet === 'undefined' ? undefined : WeakSet,
-	'%WeakSetPrototype%': typeof WeakSet === 'undefined' ? undefined : WeakSet.prototype
+
+	'%Function.prototype.call%': $call,
+	'%Function.prototype.apply%': $apply,
+	'%Object.defineProperty%': $defineProperty,
+	'%Object.getPrototypeOf%': $ObjectGPO,
+	'%Math.abs%': abs,
+	'%Math.floor%': floor,
+	'%Math.max%': max,
+	'%Math.min%': min,
+	'%Math.pow%': pow,
+	'%Math.round%': round,
+	'%Math.sign%': sign,
+	'%Reflect.getPrototypeOf%': $ReflectGPO
+};
+
+if (getProto) {
+	try {
+		null.error; // eslint-disable-line no-unused-expressions
+	} catch (e) {
+		// https://github.com/tc39/proposal-shadowrealm/pull/384#issuecomment-1364264229
+		var errorProto = getProto(getProto(e));
+		INTRINSICS['%Error.prototype%'] = errorProto;
+	}
+}
+
+var doEval = function doEval(name) {
+	var value;
+	if (name === '%AsyncFunction%') {
+		value = getEvalledConstructor('async function () {}');
+	} else if (name === '%GeneratorFunction%') {
+		value = getEvalledConstructor('function* () {}');
+	} else if (name === '%AsyncGeneratorFunction%') {
+		value = getEvalledConstructor('async function* () {}');
+	} else if (name === '%AsyncGenerator%') {
+		var fn = doEval('%AsyncGeneratorFunction%');
+		if (fn) {
+			value = fn.prototype;
+		}
+	} else if (name === '%AsyncIteratorPrototype%') {
+		var gen = doEval('%AsyncGenerator%');
+		if (gen && getProto) {
+			value = getProto(gen.prototype);
+		}
+	}
+
+	INTRINSICS[name] = value;
+
+	return value;
+};
+
+var LEGACY_ALIASES = {
+	__proto__: null,
+	'%ArrayBufferPrototype%': ['ArrayBuffer', 'prototype'],
+	'%ArrayPrototype%': ['Array', 'prototype'],
+	'%ArrayProto_entries%': ['Array', 'prototype', 'entries'],
+	'%ArrayProto_forEach%': ['Array', 'prototype', 'forEach'],
+	'%ArrayProto_keys%': ['Array', 'prototype', 'keys'],
+	'%ArrayProto_values%': ['Array', 'prototype', 'values'],
+	'%AsyncFunctionPrototype%': ['AsyncFunction', 'prototype'],
+	'%AsyncGenerator%': ['AsyncGeneratorFunction', 'prototype'],
+	'%AsyncGeneratorPrototype%': ['AsyncGeneratorFunction', 'prototype', 'prototype'],
+	'%BooleanPrototype%': ['Boolean', 'prototype'],
+	'%DataViewPrototype%': ['DataView', 'prototype'],
+	'%DatePrototype%': ['Date', 'prototype'],
+	'%ErrorPrototype%': ['Error', 'prototype'],
+	'%EvalErrorPrototype%': ['EvalError', 'prototype'],
+	'%Float32ArrayPrototype%': ['Float32Array', 'prototype'],
+	'%Float64ArrayPrototype%': ['Float64Array', 'prototype'],
+	'%FunctionPrototype%': ['Function', 'prototype'],
+	'%Generator%': ['GeneratorFunction', 'prototype'],
+	'%GeneratorPrototype%': ['GeneratorFunction', 'prototype', 'prototype'],
+	'%Int8ArrayPrototype%': ['Int8Array', 'prototype'],
+	'%Int16ArrayPrototype%': ['Int16Array', 'prototype'],
+	'%Int32ArrayPrototype%': ['Int32Array', 'prototype'],
+	'%JSONParse%': ['JSON', 'parse'],
+	'%JSONStringify%': ['JSON', 'stringify'],
+	'%MapPrototype%': ['Map', 'prototype'],
+	'%NumberPrototype%': ['Number', 'prototype'],
+	'%ObjectPrototype%': ['Object', 'prototype'],
+	'%ObjProto_toString%': ['Object', 'prototype', 'toString'],
+	'%ObjProto_valueOf%': ['Object', 'prototype', 'valueOf'],
+	'%PromisePrototype%': ['Promise', 'prototype'],
+	'%PromiseProto_then%': ['Promise', 'prototype', 'then'],
+	'%Promise_all%': ['Promise', 'all'],
+	'%Promise_reject%': ['Promise', 'reject'],
+	'%Promise_resolve%': ['Promise', 'resolve'],
+	'%RangeErrorPrototype%': ['RangeError', 'prototype'],
+	'%ReferenceErrorPrototype%': ['ReferenceError', 'prototype'],
+	'%RegExpPrototype%': ['RegExp', 'prototype'],
+	'%SetPrototype%': ['Set', 'prototype'],
+	'%SharedArrayBufferPrototype%': ['SharedArrayBuffer', 'prototype'],
+	'%StringPrototype%': ['String', 'prototype'],
+	'%SymbolPrototype%': ['Symbol', 'prototype'],
+	'%SyntaxErrorPrototype%': ['SyntaxError', 'prototype'],
+	'%TypedArrayPrototype%': ['TypedArray', 'prototype'],
+	'%TypeErrorPrototype%': ['TypeError', 'prototype'],
+	'%Uint8ArrayPrototype%': ['Uint8Array', 'prototype'],
+	'%Uint8ClampedArrayPrototype%': ['Uint8ClampedArray', 'prototype'],
+	'%Uint16ArrayPrototype%': ['Uint16Array', 'prototype'],
+	'%Uint32ArrayPrototype%': ['Uint32Array', 'prototype'],
+	'%URIErrorPrototype%': ['URIError', 'prototype'],
+	'%WeakMapPrototype%': ['WeakMap', 'prototype'],
+	'%WeakSetPrototype%': ['WeakSet', 'prototype']
 };
 
 var bind = require('function-bind');
-var $replace = bind.call(Function.call, String.prototype.replace);
+var hasOwn = require('hasown');
+var $concat = bind.call($call, Array.prototype.concat);
+var $spliceApply = bind.call($apply, Array.prototype.splice);
+var $replace = bind.call($call, String.prototype.replace);
+var $strSlice = bind.call($call, String.prototype.slice);
+var $exec = bind.call($call, RegExp.prototype.exec);
 
 /* adapted from https://github.com/lodash/lodash/blob/4.17.15/dist/lodash.js#L6735-L6744 */
 var rePropName = /[^%.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|%$))/g;
 var reEscapeChar = /\\(\\)?/g; /** Used to match backslashes in property paths. */
 var stringToPath = function stringToPath(string) {
+	var first = $strSlice(string, 0, 1);
+	var last = $strSlice(string, -1);
+	if (first === '%' && last !== '%') {
+		throw new $SyntaxError('invalid intrinsic syntax, expected closing `%`');
+	} else if (last === '%' && first !== '%') {
+		throw new $SyntaxError('invalid intrinsic syntax, expected opening `%`');
+	}
 	var result = [];
 	$replace(string, rePropName, function (match, number, quote, subString) {
-		result[result.length] = quote ? $replace(subString, reEscapeChar, '$1') : (number || match);
+		result[result.length] = quote ? $replace(subString, reEscapeChar, '$1') : number || match;
 	});
 	return result;
 };
 /* end adaptation */
 
 var getBaseIntrinsic = function getBaseIntrinsic(name, allowMissing) {
-	if (!(name in INTRINSICS)) {
-		throw new SyntaxError('intrinsic ' + name + ' does not exist!');
+	var intrinsicName = name;
+	var alias;
+	if (hasOwn(LEGACY_ALIASES, intrinsicName)) {
+		alias = LEGACY_ALIASES[intrinsicName];
+		intrinsicName = '%' + alias[0] + '%';
 	}
 
-	// istanbul ignore if // hopefully this is impossible to test :-)
-	if (typeof INTRINSICS[name] === 'undefined' && !allowMissing) {
-		throw new $TypeError('intrinsic ' + name + ' exists, but is not available. Please file an issue!');
+	if (hasOwn(INTRINSICS, intrinsicName)) {
+		var value = INTRINSICS[intrinsicName];
+		if (value === needsEval) {
+			value = doEval(intrinsicName);
+		}
+		if (typeof value === 'undefined' && !allowMissing) {
+			throw new $TypeError('intrinsic ' + name + ' exists, but is not available. Please file an issue!');
+		}
+
+		return {
+			alias: alias,
+			name: intrinsicName,
+			value: value
+		};
 	}
 
-	return INTRINSICS[name];
+	throw new $SyntaxError('intrinsic ' + name + ' does not exist!');
 };
 
 module.exports = function GetIntrinsic(name, allowMissing) {
 	if (typeof name !== 'string' || name.length === 0) {
-		throw new TypeError('intrinsic name must be a non-empty string');
+		throw new $TypeError('intrinsic name must be a non-empty string');
 	}
 	if (arguments.length > 1 && typeof allowMissing !== 'boolean') {
-		throw new TypeError('"allowMissing" argument must be a boolean');
+		throw new $TypeError('"allowMissing" argument must be a boolean');
 	}
 
+	if ($exec(/^%?[^%]*%?$/, name) === null) {
+		throw new $SyntaxError('`%` may not be present anywhere but at the beginning and end of the intrinsic name');
+	}
 	var parts = stringToPath(name);
+	var intrinsicBaseName = parts.length > 0 ? parts[0] : '';
 
-	var value = getBaseIntrinsic('%' + (parts.length > 0 ? parts[0] : '') + '%', allowMissing);
-	for (var i = 1; i < parts.length; i += 1) {
-		if (value != null) {
-			if ($gOPD && (i + 1) >= parts.length) {
-				var desc = $gOPD(value, parts[i]);
-				if (!allowMissing && !(parts[i] in value)) {
+	var intrinsic = getBaseIntrinsic('%' + intrinsicBaseName + '%', allowMissing);
+	var intrinsicRealName = intrinsic.name;
+	var value = intrinsic.value;
+	var skipFurtherCaching = false;
+
+	var alias = intrinsic.alias;
+	if (alias) {
+		intrinsicBaseName = alias[0];
+		$spliceApply(parts, $concat([0, 1], alias));
+	}
+
+	for (var i = 1, isOwn = true; i < parts.length; i += 1) {
+		var part = parts[i];
+		var first = $strSlice(part, 0, 1);
+		var last = $strSlice(part, -1);
+		if (
+			(
+				(first === '"' || first === "'" || first === '`')
+				|| (last === '"' || last === "'" || last === '`')
+			)
+			&& first !== last
+		) {
+			throw new $SyntaxError('property names with quotes must have matching quotes');
+		}
+		if (part === 'constructor' || !isOwn) {
+			skipFurtherCaching = true;
+		}
+
+		intrinsicBaseName += '.' + part;
+		intrinsicRealName = '%' + intrinsicBaseName + '%';
+
+		if (hasOwn(INTRINSICS, intrinsicRealName)) {
+			value = INTRINSICS[intrinsicRealName];
+		} else if (value != null) {
+			if (!(part in value)) {
+				if (!allowMissing) {
 					throw new $TypeError('base intrinsic for ' + name + ' exists, but the property is not available.');
 				}
+				return void undefined;
+			}
+			if ($gOPD && (i + 1) >= parts.length) {
+				var desc = $gOPD(value, part);
+				isOwn = !!desc;
+
 				// By convention, when a data property is converted to an accessor
 				// property to emulate a data property that does not suffer from
 				// the override mistake, that accessor's getter is marked with
@@ -2381,74 +2906,79 @@ module.exports = function GetIntrinsic(name, allowMissing) {
 				// uphold the illusion by pretending to see that original data
 				// property, i.e., returning the value rather than the getter
 				// itself.
-				value = desc && 'get' in desc && !('originalValue' in desc.get) ? desc.get : value[parts[i]];
+				if (isOwn && 'get' in desc && !('originalValue' in desc.get)) {
+					value = desc.get;
+				} else {
+					value = value[part];
+				}
 			} else {
-				value = value[parts[i]];
+				isOwn = hasOwn(value, part);
+				value = value[part];
+			}
+
+			if (isOwn && !skipFurtherCaching) {
+				INTRINSICS[intrinsicRealName] = value;
 			}
 		}
 	}
 	return value;
 };
 
-},{"function-bind":14,"has-symbols":15}],9:[function(require,module,exports){
+},{"call-bind-apply-helpers/functionApply":9,"call-bind-apply-helpers/functionCall":10,"es-define-property":17,"es-errors":19,"es-errors/eval":18,"es-errors/range":20,"es-errors/ref":21,"es-errors/syntax":22,"es-errors/type":23,"es-errors/uri":24,"es-object-atoms":25,"function-bind":28,"get-proto":33,"get-proto/Object.getPrototypeOf":31,"get-proto/Reflect.getPrototypeOf":32,"gopd":35,"has-symbols":37,"hasown":40,"math-intrinsics/abs":48,"math-intrinsics/floor":49,"math-intrinsics/max":51,"math-intrinsics/min":52,"math-intrinsics/pow":53,"math-intrinsics/round":54,"math-intrinsics/sign":55}],31:[function(require,module,exports){
 'use strict';
 
-var bind = require('function-bind');
+var $Object = require('es-object-atoms');
 
-var GetIntrinsic = require('../GetIntrinsic');
+/** @type {import('./Object.getPrototypeOf')} */
+module.exports = $Object.getPrototypeOf || null;
 
-var $apply = GetIntrinsic('%Function.prototype.apply%');
-var $call = GetIntrinsic('%Function.prototype.call%');
-var $reflectApply = GetIntrinsic('%Reflect.apply%', true) || bind.call($call, $apply);
+},{"es-object-atoms":25}],32:[function(require,module,exports){
+'use strict';
 
-var $defineProperty = GetIntrinsic('%Object.defineProperty%', true);
+/** @type {import('./Reflect.getPrototypeOf')} */
+module.exports = (typeof Reflect !== 'undefined' && Reflect.getPrototypeOf) || null;
 
-if ($defineProperty) {
-	try {
-		$defineProperty({}, 'a', { value: 1 });
-	} catch (e) {
-		// IE 8 has a broken defineProperty
-		$defineProperty = null;
+},{}],33:[function(require,module,exports){
+'use strict';
+
+var reflectGetProto = require('./Reflect.getPrototypeOf');
+var originalGetProto = require('./Object.getPrototypeOf');
+
+var getDunderProto = require('dunder-proto/get');
+
+/** @type {import('.')} */
+module.exports = reflectGetProto
+	? function getProto(O) {
+		// @ts-expect-error TS can't narrow inside a closure, for some reason
+		return reflectGetProto(O);
 	}
-}
+	: originalGetProto
+		? function getProto(O) {
+			if (!O || (typeof O !== 'object' && typeof O !== 'function')) {
+				throw new TypeError('getProto: not an object');
+			}
+			// @ts-expect-error TS can't narrow inside a closure, for some reason
+			return originalGetProto(O);
+		}
+		: getDunderProto
+			? function getProto(O) {
+				// @ts-expect-error TS can't narrow inside a closure, for some reason
+				return getDunderProto(O);
+			}
+			: null;
 
-module.exports = function callBind() {
-	return $reflectApply(bind, $call, arguments);
-};
-
-var applyBind = function applyBind() {
-	return $reflectApply(bind, $apply, arguments);
-};
-
-if ($defineProperty) {
-	$defineProperty(module.exports, 'apply', { value: applyBind });
-} else {
-	module.exports.apply = applyBind;
-}
-
-},{"../GetIntrinsic":8,"function-bind":14}],10:[function(require,module,exports){
+},{"./Object.getPrototypeOf":31,"./Reflect.getPrototypeOf":32,"dunder-proto/get":16}],34:[function(require,module,exports){
 'use strict';
 
-var GetIntrinsic = require('../GetIntrinsic');
+/** @type {import('./gOPD')} */
+module.exports = Object.getOwnPropertyDescriptor;
 
-var callBind = require('./callBind');
-
-var $indexOf = callBind(GetIntrinsic('String.prototype.indexOf'));
-
-module.exports = function callBoundIntrinsic(name, allowMissing) {
-	var intrinsic = GetIntrinsic(name, !!allowMissing);
-	if (typeof intrinsic === 'function' && $indexOf(name, '.prototype.')) {
-		return callBind(intrinsic);
-	}
-	return intrinsic;
-};
-
-},{"../GetIntrinsic":8,"./callBind":9}],11:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
-var GetIntrinsic = require('../GetIntrinsic');
+/** @type {import('.')} */
+var $gOPD = require('./gOPD');
 
-var $gOPD = GetIntrinsic('%Object.getOwnPropertyDescriptor%');
 if ($gOPD) {
 	try {
 		$gOPD([], 'length');
@@ -2460,98 +2990,37 @@ if ($gOPD) {
 
 module.exports = $gOPD;
 
-},{"../GetIntrinsic":8}],12:[function(require,module,exports){
+},{"./gOPD":34}],36:[function(require,module,exports){
+'use strict';
 
-var hasOwn = Object.prototype.hasOwnProperty;
-var toString = Object.prototype.toString;
+var $defineProperty = require('es-define-property');
 
-module.exports = function forEach (obj, fn, ctx) {
-    if (toString.call(fn) !== '[object Function]') {
-        throw new TypeError('iterator must be a function');
-    }
-    var l = obj.length;
-    if (l === +l) {
-        for (var i = 0; i < l; i++) {
-            fn.call(ctx, obj[i], i, obj);
-        }
-    } else {
-        for (var k in obj) {
-            if (hasOwn.call(obj, k)) {
-                fn.call(ctx, obj[k], k, obj);
-            }
-        }
-    }
+var hasPropertyDescriptors = function hasPropertyDescriptors() {
+	return !!$defineProperty;
 };
 
-
-},{}],13:[function(require,module,exports){
-'use strict';
-
-/* eslint no-invalid-this: 1 */
-
-var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
-var slice = Array.prototype.slice;
-var toStr = Object.prototype.toString;
-var funcType = '[object Function]';
-
-module.exports = function bind(that) {
-    var target = this;
-    if (typeof target !== 'function' || toStr.call(target) !== funcType) {
-        throw new TypeError(ERROR_MESSAGE + target);
-    }
-    var args = slice.call(arguments, 1);
-
-    var bound;
-    var binder = function () {
-        if (this instanceof bound) {
-            var result = target.apply(
-                this,
-                args.concat(slice.call(arguments))
-            );
-            if (Object(result) === result) {
-                return result;
-            }
-            return this;
-        } else {
-            return target.apply(
-                that,
-                args.concat(slice.call(arguments))
-            );
-        }
-    };
-
-    var boundLength = Math.max(0, target.length - args.length);
-    var boundArgs = [];
-    for (var i = 0; i < boundLength; i++) {
-        boundArgs.push('$' + i);
-    }
-
-    bound = Function('binder', 'return function (' + boundArgs.join(',') + '){ return binder.apply(this,arguments); }')(binder);
-
-    if (target.prototype) {
-        var Empty = function Empty() {};
-        Empty.prototype = target.prototype;
-        bound.prototype = new Empty();
-        Empty.prototype = null;
-    }
-
-    return bound;
+hasPropertyDescriptors.hasArrayLengthDefineBug = function hasArrayLengthDefineBug() {
+	// node v0.6 has a bug where array lengths can be Set but not Defined
+	if (!$defineProperty) {
+		return null;
+	}
+	try {
+		return $defineProperty([], 'length', { value: 1 }).length !== 1;
+	} catch (e) {
+		// In Firefox 4-22, defining length on an array throws an exception.
+		return true;
+	}
 };
 
-},{}],14:[function(require,module,exports){
+module.exports = hasPropertyDescriptors;
+
+},{"es-define-property":17}],37:[function(require,module,exports){
 'use strict';
 
-var implementation = require('./implementation');
-
-module.exports = Function.prototype.bind || implementation;
-
-},{"./implementation":13}],15:[function(require,module,exports){
-(function (global){(function (){
-'use strict';
-
-var origSymbol = global.Symbol;
+var origSymbol = typeof Symbol !== 'undefined' && Symbol;
 var hasSymbolSham = require('./shams');
 
+/** @type {import('.')} */
 module.exports = function hasNativeSymbols() {
 	if (typeof origSymbol !== 'function') { return false; }
 	if (typeof Symbol !== 'function') { return false; }
@@ -2561,15 +3030,16 @@ module.exports = function hasNativeSymbols() {
 	return hasSymbolSham();
 };
 
-}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./shams":16}],16:[function(require,module,exports){
+},{"./shams":38}],38:[function(require,module,exports){
 'use strict';
 
+/** @type {import('./shams')} */
 /* eslint complexity: [2, 18], max-statements: [2, 33] */
 module.exports = function hasSymbols() {
 	if (typeof Symbol !== 'function' || typeof Object.getOwnPropertySymbols !== 'function') { return false; }
 	if (typeof Symbol.iterator === 'symbol') { return true; }
 
+	/** @type {{ [k in symbol]?: unknown }} */
 	var obj = {};
 	var sym = Symbol('test');
 	var symObj = Object(sym);
@@ -2588,7 +3058,7 @@ module.exports = function hasSymbols() {
 
 	var symVal = 42;
 	obj[sym] = symVal;
-	for (sym in obj) { return false; } // eslint-disable-line no-restricted-syntax
+	for (var _ in obj) { return false; } // eslint-disable-line no-restricted-syntax, no-unreachable-loop
 	if (typeof Object.keys === 'function' && Object.keys(obj).length !== 0) { return false; }
 
 	if (typeof Object.getOwnPropertyNames === 'function' && Object.getOwnPropertyNames(obj).length !== 0) { return false; }
@@ -2599,14 +3069,36 @@ module.exports = function hasSymbols() {
 	if (!Object.prototype.propertyIsEnumerable.call(obj, sym)) { return false; }
 
 	if (typeof Object.getOwnPropertyDescriptor === 'function') {
-		var descriptor = Object.getOwnPropertyDescriptor(obj, sym);
+		// eslint-disable-next-line no-extra-parens
+		var descriptor = /** @type {PropertyDescriptor} */ (Object.getOwnPropertyDescriptor(obj, sym));
 		if (descriptor.value !== symVal || descriptor.enumerable !== true) { return false; }
 	}
 
 	return true;
 };
 
-},{}],17:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
+'use strict';
+
+var hasSymbols = require('has-symbols/shams');
+
+/** @type {import('.')} */
+module.exports = function hasToStringTagShams() {
+	return hasSymbols() && !!Symbol.toStringTag;
+};
+
+},{"has-symbols/shams":38}],40:[function(require,module,exports){
+'use strict';
+
+var call = Function.prototype.call;
+var $hasOwn = Object.prototype.hasOwnProperty;
+var bind = require('function-bind');
+
+/** @type {import('.')} */
+module.exports = bind.call(call, $hasOwn);
+
+},{"function-bind":28}],41:[function(require,module,exports){
+/*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = (nBytes * 8) - mLen - 1
@@ -2692,164 +3184,356 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],18:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    ctor.prototype = Object.create(superCtor.prototype, {
-      constructor: {
-        value: ctor,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
+    if (superCtor) {
+      ctor.super_ = superCtor
+      ctor.prototype = Object.create(superCtor.prototype, {
+        constructor: {
+          value: ctor,
+          enumerable: false,
+          writable: true,
+          configurable: true
+        }
+      })
+    }
   };
 } else {
   // old school shim for old browsers
   module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    var TempCtor = function () {}
-    TempCtor.prototype = superCtor.prototype
-    ctor.prototype = new TempCtor()
-    ctor.prototype.constructor = ctor
+    if (superCtor) {
+      ctor.super_ = superCtor
+      var TempCtor = function () {}
+      TempCtor.prototype = superCtor.prototype
+      ctor.prototype = new TempCtor()
+      ctor.prototype.constructor = ctor
+    }
   }
 }
 
-},{}],19:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 'use strict';
 
-var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
-var toStr = Object.prototype.toString;
+var hasToStringTag = require('has-tostringtag/shams')();
+var callBound = require('call-bound');
 
+var $toString = callBound('Object.prototype.toString');
+
+/** @type {import('.')} */
 var isStandardArguments = function isArguments(value) {
-	if (hasToStringTag && value && typeof value === 'object' && Symbol.toStringTag in value) {
+	if (
+		hasToStringTag
+		&& value
+		&& typeof value === 'object'
+		&& Symbol.toStringTag in value
+	) {
 		return false;
 	}
-	return toStr.call(value) === '[object Arguments]';
+	return $toString(value) === '[object Arguments]';
 };
 
+/** @type {import('.')} */
 var isLegacyArguments = function isArguments(value) {
 	if (isStandardArguments(value)) {
 		return true;
 	}
-	return value !== null &&
-		typeof value === 'object' &&
-		typeof value.length === 'number' &&
-		value.length >= 0 &&
-		toStr.call(value) !== '[object Array]' &&
-		toStr.call(value.callee) === '[object Function]';
+	return value !== null
+		&& typeof value === 'object'
+		&& 'length' in value
+		&& typeof value.length === 'number'
+		&& value.length >= 0
+		&& $toString(value) !== '[object Array]'
+		&& 'callee' in value
+		&& $toString(value.callee) === '[object Function]';
 };
 
 var supportsStandardArguments = (function () {
 	return isStandardArguments(arguments);
 }());
 
+// @ts-expect-error TODO make this not error
 isStandardArguments.isLegacyArguments = isLegacyArguments; // for tests
 
+/** @type {import('.')} */
 module.exports = supportsStandardArguments ? isStandardArguments : isLegacyArguments;
 
-},{}],20:[function(require,module,exports){
+},{"call-bound":14,"has-tostringtag/shams":39}],44:[function(require,module,exports){
 'use strict';
 
-var toStr = Object.prototype.toString;
 var fnToStr = Function.prototype.toString;
-var isFnRegex = /^\s*(?:function)?\*/;
-var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
-var getProto = Object.getPrototypeOf;
-var getGeneratorFunc = function () { // eslint-disable-line consistent-return
-	if (!hasToStringTag) {
-		return false;
-	}
+var reflectApply = typeof Reflect === 'object' && Reflect !== null && Reflect.apply;
+var badArrayLike;
+var isCallableMarker;
+if (typeof reflectApply === 'function' && typeof Object.defineProperty === 'function') {
 	try {
-		return Function('return function*() {}')();
+		badArrayLike = Object.defineProperty({}, 'length', {
+			get: function () {
+				throw isCallableMarker;
+			}
+		});
+		isCallableMarker = {};
+		// eslint-disable-next-line no-throw-literal
+		reflectApply(function () { throw 42; }, null, badArrayLike);
+	} catch (_) {
+		if (_ !== isCallableMarker) {
+			reflectApply = null;
+		}
+	}
+} else {
+	reflectApply = null;
+}
+
+var constructorRegex = /^\s*class\b/;
+var isES6ClassFn = function isES6ClassFunction(value) {
+	try {
+		var fnStr = fnToStr.call(value);
+		return constructorRegex.test(fnStr);
 	} catch (e) {
+		return false; // not a function
 	}
 };
-var generatorFunc = getGeneratorFunc();
-var GeneratorFunction = generatorFunc ? getProto(generatorFunc) : {};
 
+var tryFunctionObject = function tryFunctionToStr(value) {
+	try {
+		if (isES6ClassFn(value)) { return false; }
+		fnToStr.call(value);
+		return true;
+	} catch (e) {
+		return false;
+	}
+};
+var toStr = Object.prototype.toString;
+var objectClass = '[object Object]';
+var fnClass = '[object Function]';
+var genClass = '[object GeneratorFunction]';
+var ddaClass = '[object HTMLAllCollection]'; // IE 11
+var ddaClass2 = '[object HTML document.all class]';
+var ddaClass3 = '[object HTMLCollection]'; // IE 9-10
+var hasToStringTag = typeof Symbol === 'function' && !!Symbol.toStringTag; // better: use `has-tostringtag`
+
+var isIE68 = !(0 in [,]); // eslint-disable-line no-sparse-arrays, comma-spacing
+
+var isDDA = function isDocumentDotAll() { return false; };
+if (typeof document === 'object') {
+	// Firefox 3 canonicalizes DDA to undefined when it's not accessed directly
+	var all = document.all;
+	if (toStr.call(all) === toStr.call(document.all)) {
+		isDDA = function isDocumentDotAll(value) {
+			/* globals document: false */
+			// in IE 6-8, typeof document.all is "object" and it's truthy
+			if ((isIE68 || !value) && (typeof value === 'undefined' || typeof value === 'object')) {
+				try {
+					var str = toStr.call(value);
+					return (
+						str === ddaClass
+						|| str === ddaClass2
+						|| str === ddaClass3 // opera 12.16
+						|| str === objectClass // IE 6-8
+					) && value('') == null; // eslint-disable-line eqeqeq
+				} catch (e) { /**/ }
+			}
+			return false;
+		};
+	}
+}
+
+module.exports = reflectApply
+	? function isCallable(value) {
+		if (isDDA(value)) { return true; }
+		if (!value) { return false; }
+		if (typeof value !== 'function' && typeof value !== 'object') { return false; }
+		try {
+			reflectApply(value, null, badArrayLike);
+		} catch (e) {
+			if (e !== isCallableMarker) { return false; }
+		}
+		return !isES6ClassFn(value) && tryFunctionObject(value);
+	}
+	: function isCallable(value) {
+		if (isDDA(value)) { return true; }
+		if (!value) { return false; }
+		if (typeof value !== 'function' && typeof value !== 'object') { return false; }
+		if (hasToStringTag) { return tryFunctionObject(value); }
+		if (isES6ClassFn(value)) { return false; }
+		var strClass = toStr.call(value);
+		if (strClass !== fnClass && strClass !== genClass && !(/^\[object HTML/).test(strClass)) { return false; }
+		return tryFunctionObject(value);
+	};
+
+},{}],45:[function(require,module,exports){
+'use strict';
+
+var callBound = require('call-bound');
+var safeRegexTest = require('safe-regex-test');
+var isFnRegex = safeRegexTest(/^\s*(?:function)?\*/);
+var hasToStringTag = require('has-tostringtag/shams')();
+var getProto = require('get-proto');
+
+var toStr = callBound('Object.prototype.toString');
+var fnToStr = callBound('Function.prototype.toString');
+
+var getGeneratorFunction = require('generator-function');
+
+/** @type {import('.')} */
 module.exports = function isGeneratorFunction(fn) {
 	if (typeof fn !== 'function') {
 		return false;
 	}
-	if (isFnRegex.test(fnToStr.call(fn))) {
+	if (isFnRegex(fnToStr(fn))) {
 		return true;
 	}
 	if (!hasToStringTag) {
-		var str = toStr.call(fn);
+		var str = toStr(fn);
 		return str === '[object GeneratorFunction]';
 	}
-	return getProto(fn) === GeneratorFunction;
+	if (!getProto) {
+		return false;
+	}
+	var GeneratorFunction = getGeneratorFunction();
+	return GeneratorFunction && getProto(fn) === GeneratorFunction.prototype;
 };
 
-},{}],21:[function(require,module,exports){
-(function (global){(function (){
+},{"call-bound":14,"generator-function":29,"get-proto":33,"has-tostringtag/shams":39,"safe-regex-test":60}],46:[function(require,module,exports){
 'use strict';
 
-var forEach = require('foreach');
-var availableTypedArrays = require('available-typed-arrays');
-var callBound = require('es-abstract/helpers/callBound');
+var callBound = require('call-bound');
+var hasToStringTag = require('has-tostringtag/shams')();
+var hasOwn = require('hasown');
+var gOPD = require('gopd');
 
-var $toString = callBound('Object.prototype.toString');
-var hasSymbols = require('has-symbols')();
-var hasToStringTag = hasSymbols && typeof Symbol.toStringTag === 'symbol';
+/** @type {import('.')} */
+var fn;
 
-var typedArrays = availableTypedArrays();
+if (hasToStringTag) {
+	/** @type {(receiver: ThisParameterType<typeof RegExp.prototype.exec>, ...args: Parameters<typeof RegExp.prototype.exec>) => ReturnType<typeof RegExp.prototype.exec>} */
+	var $exec = callBound('RegExp.prototype.exec');
+	/** @type {object} */
+	var isRegexMarker = {};
 
-var $indexOf = callBound('Array.prototype.indexOf', true) || function indexOf(array, value) {
-	for (var i = 0; i < array.length; i += 1) {
-		if (array[i] === value) {
-			return i;
-		}
+	var throwRegexMarker = function () {
+		throw isRegexMarker;
+	};
+	/** @type {{ toString(): never, valueOf(): never, [Symbol.toPrimitive]?(): never }} */
+	var badStringifier = {
+		toString: throwRegexMarker,
+		valueOf: throwRegexMarker
+	};
+
+	if (typeof Symbol.toPrimitive === 'symbol') {
+		badStringifier[Symbol.toPrimitive] = throwRegexMarker;
 	}
-	return -1;
-};
-var $slice = callBound('String.prototype.slice');
-var toStrTags = {};
-var gOPD = require('es-abstract/helpers/getOwnPropertyDescriptor');
-var getPrototypeOf = Object.getPrototypeOf; // require('getprototypeof');
-if (hasToStringTag && gOPD && getPrototypeOf) {
-	forEach(typedArrays, function (typedArray) {
-		var arr = new global[typedArray]();
-		if (!(Symbol.toStringTag in arr)) {
-			throw new EvalError('this engine has support for Symbol.toStringTag, but ' + typedArray + ' does not have the property! Please report this.');
+
+	/** @type {import('.')} */
+	// @ts-expect-error TS can't figure out that the $exec call always throws
+	// eslint-disable-next-line consistent-return
+	fn = function isRegex(value) {
+		if (!value || typeof value !== 'object') {
+			return false;
 		}
-		var proto = getPrototypeOf(arr);
-		var descriptor = gOPD(proto, Symbol.toStringTag);
-		if (!descriptor) {
-			var superProto = getPrototypeOf(proto);
-			descriptor = gOPD(superProto, Symbol.toStringTag);
+
+		// eslint-disable-next-line no-extra-parens
+		var descriptor = /** @type {NonNullable<typeof gOPD>} */ (gOPD)(/** @type {{ lastIndex?: unknown }} */ (value), 'lastIndex');
+		var hasLastIndexDataProperty = descriptor && hasOwn(descriptor, 'value');
+		if (!hasLastIndexDataProperty) {
+			return false;
 		}
-		toStrTags[typedArray] = descriptor.get;
-	});
+
+		try {
+			// eslint-disable-next-line no-extra-parens
+			$exec(value, /** @type {string} */ (/** @type {unknown} */ (badStringifier)));
+		} catch (e) {
+			return e === isRegexMarker;
+		}
+	};
+} else {
+	/** @type {(receiver: ThisParameterType<typeof Object.prototype.toString>, ...args: Parameters<typeof Object.prototype.toString>) => ReturnType<typeof Object.prototype.toString>} */
+	var $toString = callBound('Object.prototype.toString');
+	/** @const @type {'[object RegExp]'} */
+	var regexClass = '[object RegExp]';
+
+	/** @type {import('.')} */
+	fn = function isRegex(value) {
+		// In older browsers, typeof regex incorrectly returns 'function'
+		if (!value || (typeof value !== 'object' && typeof value !== 'function')) {
+			return false;
+		}
+
+		return $toString(value) === regexClass;
+	};
 }
 
-var tryTypedArrays = function tryAllTypedArrays(value) {
-	var anyTrue = false;
-	forEach(toStrTags, function (getter, typedArray) {
-		if (!anyTrue) {
-			try {
-				anyTrue = getter.call(value) === typedArray;
-			} catch (e) { /**/ }
-		}
-	});
-	return anyTrue;
-};
+module.exports = fn;
 
+},{"call-bound":14,"gopd":35,"has-tostringtag/shams":39,"hasown":40}],47:[function(require,module,exports){
+'use strict';
+
+var whichTypedArray = require('which-typed-array');
+
+/** @type {import('.')} */
 module.exports = function isTypedArray(value) {
-	if (!value || typeof value !== 'object') { return false; }
-	if (!hasToStringTag) {
-		var tag = $slice($toString(value), 8, -1);
-		return $indexOf(typedArrays, tag) > -1;
-	}
-	if (!gOPD) { return false; }
-	return tryTypedArrays(value);
+	return !!whichTypedArray(value);
 };
 
-}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":4,"es-abstract/helpers/callBound":10,"es-abstract/helpers/getOwnPropertyDescriptor":11,"foreach":12,"has-symbols":15}],22:[function(require,module,exports){
+},{"which-typed-array":67}],48:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./abs')} */
+module.exports = Math.abs;
+
+},{}],49:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./floor')} */
+module.exports = Math.floor;
+
+},{}],50:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./isNaN')} */
+module.exports = Number.isNaN || function isNaN(a) {
+	return a !== a;
+};
+
+},{}],51:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./max')} */
+module.exports = Math.max;
+
+},{}],52:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./min')} */
+module.exports = Math.min;
+
+},{}],53:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./pow')} */
+module.exports = Math.pow;
+
+},{}],54:[function(require,module,exports){
+'use strict';
+
+/** @type {import('./round')} */
+module.exports = Math.round;
+
+},{}],55:[function(require,module,exports){
+'use strict';
+
+var $isNaN = require('./isNaN');
+
+/** @type {import('./sign')} */
+module.exports = function sign(number) {
+	if ($isNaN(number) || number === 0) {
+		return number;
+	}
+	return number < 0 ? -1 : +1;
+};
+
+},{"./isNaN":50}],56:[function(require,module,exports){
 (function (process){(function (){
 // 'path' module extracted from Node.js v8.11.1 (only the posix part)
 // transplited with Babel
@@ -3382,7 +4066,7 @@ posix.posix = posix;
 module.exports = posix;
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":24}],23:[function(require,module,exports){
+},{"_process":59}],57:[function(require,module,exports){
 (function (Buffer){(function (){
 /*
 	JavaScript XML Library
@@ -4011,7 +4695,26 @@ var num_keys = exports.numKeys = function num_keys(hash) {
 };
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":7,"fs":6,"util":27}],24:[function(require,module,exports){
+},{"buffer":6,"fs":5,"util":64}],58:[function(require,module,exports){
+'use strict';
+
+/** @type {import('.')} */
+module.exports = [
+	'Float16Array',
+	'Float32Array',
+	'Float64Array',
+	'Int8Array',
+	'Int16Array',
+	'Int32Array',
+	'Uint8Array',
+	'Uint8ClampedArray',
+	'Uint16Array',
+	'Uint32Array',
+	'BigInt64Array',
+	'BigUint64Array'
+];
+
+},{}],59:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -4197,14 +4900,77 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],25:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
+'use strict';
+
+var callBound = require('call-bound');
+var isRegex = require('is-regex');
+
+var $exec = callBound('RegExp.prototype.exec');
+var $TypeError = require('es-errors/type');
+
+/** @type {import('.')} */
+module.exports = function regexTester(regex) {
+	if (!isRegex(regex)) {
+		throw new $TypeError('`regex` must be a RegExp');
+	}
+	return function test(s) {
+		return $exec(regex, s) !== null;
+	};
+};
+
+},{"call-bound":14,"es-errors/type":23,"is-regex":46}],61:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('get-intrinsic');
+var define = require('define-data-property');
+var hasDescriptors = require('has-property-descriptors')();
+var gOPD = require('gopd');
+
+var $TypeError = require('es-errors/type');
+var $floor = GetIntrinsic('%Math.floor%');
+
+/** @type {import('.')} */
+module.exports = function setFunctionLength(fn, length) {
+	if (typeof fn !== 'function') {
+		throw new $TypeError('`fn` is not a function');
+	}
+	if (typeof length !== 'number' || length < 0 || length > 0xFFFFFFFF || $floor(length) !== length) {
+		throw new $TypeError('`length` must be a positive 32-bit integer');
+	}
+
+	var loose = arguments.length > 2 && !!arguments[2];
+
+	var functionLengthIsConfigurable = true;
+	var functionLengthIsWritable = true;
+	if ('length' in fn && gOPD) {
+		var desc = gOPD(fn, 'length');
+		if (desc && !desc.configurable) {
+			functionLengthIsConfigurable = false;
+		}
+		if (desc && !desc.writable) {
+			functionLengthIsWritable = false;
+		}
+	}
+
+	if (functionLengthIsConfigurable || functionLengthIsWritable || !loose) {
+		if (hasDescriptors) {
+			define(/** @type {Parameters<define>[0]} */ (fn), 'length', length, true, true);
+		} else {
+			define(/** @type {Parameters<define>[0]} */ (fn), 'length', length);
+		}
+	}
+	return fn;
+};
+
+},{"define-data-property":15,"es-errors/type":23,"get-intrinsic":30,"gopd":35,"has-property-descriptors":36}],62:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],26:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 // Currently in sync with Node.js lib/internal/util/types.js
 // https://github.com/nodejs/node/commit/112cc7c27551254aa2b17098fb774867f05ed0d9
 
@@ -4442,21 +5208,23 @@ function isDataView(value) {
 }
 exports.isDataView = isDataView;
 
+// Store a copy of SharedArrayBuffer in case it's deleted elsewhere
+var SharedArrayBufferCopy = typeof SharedArrayBuffer !== 'undefined' ? SharedArrayBuffer : undefined;
 function isSharedArrayBufferToString(value) {
   return ObjectToString(value) === '[object SharedArrayBuffer]';
 }
-isSharedArrayBufferToString.working = (
-  typeof SharedArrayBuffer !== 'undefined' &&
-  isSharedArrayBufferToString(new SharedArrayBuffer())
-);
 function isSharedArrayBuffer(value) {
-  if (typeof SharedArrayBuffer === 'undefined') {
+  if (typeof SharedArrayBufferCopy === 'undefined') {
     return false;
+  }
+
+  if (typeof isSharedArrayBufferToString.working === 'undefined') {
+    isSharedArrayBufferToString.working = isSharedArrayBufferToString(new SharedArrayBufferCopy());
   }
 
   return isSharedArrayBufferToString.working
     ? isSharedArrayBufferToString(value)
-    : value instanceof SharedArrayBuffer;
+    : value instanceof SharedArrayBufferCopy;
 }
 exports.isSharedArrayBuffer = isSharedArrayBuffer;
 
@@ -4538,7 +5306,7 @@ exports.isAnyArrayBuffer = isAnyArrayBuffer;
   });
 });
 
-},{"is-arguments":19,"is-generator-function":20,"is-typed-array":21,"which-typed-array":30}],27:[function(require,module,exports){
+},{"is-arguments":43,"is-generator-function":45,"is-typed-array":47,"which-typed-array":67}],64:[function(require,module,exports){
 (function (process){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -4952,7 +5720,7 @@ function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
         if (array) {
           str = str.split('\n').map(function(line) {
             return '  ' + line;
-          }).join('\n').substr(2);
+          }).join('\n').slice(2);
         } else {
           str = '\n' + str.split('\n').map(function(line) {
             return '   ' + line;
@@ -4969,7 +5737,7 @@ function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
     }
     name = JSON.stringify('' + key);
     if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
-      name = name.substr(1, name.length - 2);
+      name = name.slice(1, -1);
       name = ctx.stylize(name, 'name');
     } else {
       name = name.replace(/'/g, "\\'")
@@ -5257,7 +6025,7 @@ function callbackify(original) {
 exports.callbackify = callbackify;
 
 }).call(this)}).call(this,require('_process'))
-},{"./support/isBuffer":25,"./support/types":26,"_process":24,"inherits":18}],28:[function(require,module,exports){
+},{"./support/isBuffer":62,"./support/types":63,"_process":59,"inherits":42}],65:[function(require,module,exports){
 /********************************************************************************
     vCards-js, Eric J Nesser, November 2014
 ********************************************************************************/
@@ -5597,7 +6365,7 @@ var vCard = (function () {
 
 module.exports = vCard;
 
-},{"./lib/vCardFormatter":29,"fs":6,"path":22}],29:[function(require,module,exports){
+},{"./lib/vCardFormatter":66,"fs":5,"path":56}],66:[function(require,module,exports){
 /********************************************************************************
  vCards-js, Eric J Nesser, November 2014,
  ********************************************************************************/
@@ -5995,64 +6763,142 @@ module.exports = vCard;
 		}
 	};
 })();
-},{}],30:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
-var forEach = require('foreach');
+var forEach = require('for-each');
 var availableTypedArrays = require('available-typed-arrays');
-var callBound = require('es-abstract/helpers/callBound');
+var callBind = require('call-bind');
+var callBound = require('call-bound');
+var gOPD = require('gopd');
+var getProto = require('get-proto');
 
 var $toString = callBound('Object.prototype.toString');
-var hasSymbols = require('has-symbols')();
-var hasToStringTag = hasSymbols && typeof Symbol.toStringTag === 'symbol';
+var hasToStringTag = require('has-tostringtag/shams')();
 
+var g = typeof globalThis === 'undefined' ? global : globalThis;
 var typedArrays = availableTypedArrays();
 
 var $slice = callBound('String.prototype.slice');
-var toStrTags = {};
-var gOPD = require('es-abstract/helpers/getOwnPropertyDescriptor');
-var getPrototypeOf = Object.getPrototypeOf; // require('getprototypeof');
-if (hasToStringTag && gOPD && getPrototypeOf) {
+
+/** @import { BoundSet, BoundSlice, Cache, Getter } from './types' */
+/** @import { TypedArrayName } from '.' */
+
+/** @type {<T = unknown>(array: readonly T[], value: unknown) => number} */
+var $indexOf = callBound('Array.prototype.indexOf', true) || function indexOf(array, value) {
+	for (var i = 0; i < array.length; i += 1) {
+		if (array[i] === value) {
+			return i;
+		}
+	}
+	return -1;
+};
+
+/** @type {Cache} */
+var cache = { __proto__: null };
+if (hasToStringTag && gOPD && getProto) {
 	forEach(typedArrays, function (typedArray) {
-		if (typeof global[typedArray] === 'function') {
-			var arr = new global[typedArray]();
-			if (!(Symbol.toStringTag in arr)) {
-				throw new EvalError('this engine has support for Symbol.toStringTag, but ' + typedArray + ' does not have the property! Please report this.');
-			}
-			var proto = getPrototypeOf(arr);
+		var arr = new g[typedArray]();
+		if (Symbol.toStringTag in arr && getProto) {
+			var proto = getProto(arr);
+			// @ts-expect-error TS won't narrow inside a closure
 			var descriptor = gOPD(proto, Symbol.toStringTag);
-			if (!descriptor) {
-				var superProto = getPrototypeOf(proto);
+			if (!descriptor && proto) {
+				var superProto = getProto(proto);
+				// @ts-expect-error TS won't narrow inside a closure
 				descriptor = gOPD(superProto, Symbol.toStringTag);
 			}
-			toStrTags[typedArray] = descriptor.get;
+			if (descriptor && descriptor.get) {
+				var bound = callBind(descriptor.get);
+				cache[
+					/** @type {`$${TypedArrayName}`} */
+					('$' + typedArray)
+				] = bound;
+			}
+		}
+	});
+} else {
+	forEach(typedArrays, function (typedArray) {
+		var arr = new g[typedArray]();
+		var fn = arr.slice || arr.set;
+		if (fn) {
+			var bound = /** @type {typeof BoundSlice | typeof BoundSet} */ (
+				// @ts-expect-error TODO FIXME
+				callBind(fn)
+			);
+			cache[
+				/** @type {`$${TypedArrayName}`} */
+				('$' + typedArray)
+			] = bound;
 		}
 	});
 }
 
-var tryTypedArrays = function tryAllTypedArrays(value) {
-	var foundName = false;
-	forEach(toStrTags, function (getter, typedArray) {
-		if (!foundName) {
-			try {
-				var name = getter.call(value);
-				if (name === typedArray) {
-					foundName = name;
-				}
-			} catch (e) {}
+/** @type {(value: object) => false | TypedArrayName} */
+function tryTypedArrays(value) {
+	/** @type {ReturnType<typeof tryTypedArrays>} */ var found = false;
+	forEach(
+		/** @type {Record<`$${TypedArrayName}`, Getter>} */ (cache),
+		/** @param {Getter} getter @param {`$${TypedArrayName}`} typedArray */
+		function (getter, typedArray) {
+			if (!found) {
+				try {
+					// @ts-expect-error a throw is fine here
+					if ('$' + getter(value) === typedArray) {
+						found = /** @type {TypedArrayName} */ ($slice(typedArray, 1));
+					}
+				} catch (e) { /**/ }
+			}
 		}
-	});
-	return foundName;
-};
+	);
+	return found;
+}
 
-var isTypedArray = require('is-typed-array');
+/** @type {(value: object) => false | TypedArrayName} */
+function trySlices(value) {
+	/** @type {ReturnType<typeof trySlices>} */ var found = false;
+	forEach(
+		/** @type {Record<`$${TypedArrayName}`, Getter>} */(cache),
+		/** @param {Getter} getter @param {`$${TypedArrayName}`} name */ function (getter, name) {
+			if (!found) {
+				try {
+					// @ts-expect-error a throw is fine here
+					getter(value);
+					found = /** @type {TypedArrayName} */ ($slice(name, 1));
+				} catch (e) { /**/ }
+			}
+		}
+	);
+	return found;
+}
 
-module.exports = function whichTypedArray(value) {
-	if (!isTypedArray(value)) { return false; }
-	if (!hasToStringTag) { return $slice($toString(value), 8, -1); }
+/** @type {(tag: unknown) => tag is typeof typedArrays[number]} */
+function isTATag(tag) {
+	return $indexOf(typedArrays, tag) > -1;
+}
+
+/** @type {(value: unknown) => ReturnType<typeof import('.')>} */
+function whichTypedArray(value) {
+	if (!value || typeof value !== 'object') {
+		return false;
+	}
+	if (!hasToStringTag) {
+		var tag = $slice($toString(value), 8, -1);
+		if (isTATag(tag)) {
+			return tag;
+		}
+		if (tag !== 'Object') {
+			return false;
+		}
+		// node < 0.6 hits here on real Typed Arrays
+		return trySlices(value);
+	}
+	if (!gOPD) { return null; } // unknown engine
 	return tryTypedArrays(value);
-};
+}
+
+module.exports = whichTypedArray;
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":4,"es-abstract/helpers/callBound":10,"es-abstract/helpers/getOwnPropertyDescriptor":11,"foreach":12,"has-symbols":15,"is-typed-array":21}]},{},[1]);
+},{"available-typed-arrays":3,"call-bind":13,"call-bound":14,"for-each":26,"get-proto":33,"gopd":35,"has-tostringtag/shams":39}]},{},[1]);
