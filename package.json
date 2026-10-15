@@ -16,6 +16,7 @@
     "@babel/cli": "^8.0.6",
     "@babel/core": "^8.0.6",
     "@babel/preset-env": "^8.0.6",
+    "@playwright/test": "^1.63.0",
     "browserify": "^17.0.1",
     "clipboard": "^2.0.4",
     "file-saver": "^2.0.2",
@@ -33,8 +34,9 @@
     }
   },
   "scripts": {
-    "lint": "jshint ./*.js scripts/**.js src/**.js spec/**.js",
+    "lint": "jshint ./*.js e2e/**.js scripts/**.js src/**.js spec/**.js",
     "unit-test": "jasmine",
+    "test:browser": "playwright test",
     "test": "npm run lint && npm run unit-test",
     "versionjs": "node scripts/version.js",
     "escompat": "mkdir -p lib && babel src --out-dir lib",

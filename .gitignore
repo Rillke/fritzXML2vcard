@@ -68,3 +68,7 @@ typings/
 
 # next.js build output
 .next
+
+# Browser test results
+test-results/
+playwright-report/
