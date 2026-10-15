@@ -15,6 +15,12 @@
 		'': 'otherPhone'
 	};
 
+	// map FritzXML email classifiers to vcf; anything else becomes a home email
+	var emailPropertyMapping = {
+		'work': 'workEmail',
+		'other': 'otherEmail'
+	};
+
 	function needsAreaCode(number) {
 		// starts with 1 to 9 (not 0, nor +), is an actual number
 		return /^[1-9]\d+$/.test(number);
@@ -27,9 +33,24 @@
 		return /^[0-9][1-9]\d+$/.test(number);
 	}
 
+	function uniqueFileName(baseName, usedFileNames) {
+		// Compare case-insensitively, so that files don't overwrite each
+		// other on case-insensitive file systems either
+		var fileName = baseName + '.vcf',
+			counter = 1;
+
+		while (usedFileNames.hasOwnProperty(fileName.toLowerCase())) {
+			counter++;
+			fileName = baseName + '_' + counter + '.vcf';
+		}
+		usedFileNames[fileName.toLowerCase()] = true;
+		return fileName;
+	}
+
 	function run(parsedXML, area_code, country_code) {
 		var contacts = parsedXML.phonebook.contact,
-			output = {vCardStrings:{},vCardObjects:{}};
+			output = {vCardStrings:{},vCardObjects:{}},
+			usedFileNames = {};
 
 		country_code = (country_code || '').trim();
 		area_code = (area_code || '').trim();
@@ -43,8 +64,8 @@
 			var card = vCard(),
 				contactName = contact.person.realName
 					.split(','),
-				saveFileName = contact.person.realName
-					.replace(/[ ,:\/\\]/gi, '_') + '.vcf';
+				saveFileName = uniqueFileName(contact.person.realName
+					.replace(/[ ,:\/\\]/gi, '_'), usedFileNames);
 
 			if (contactName.length > 1) {
 				card.lastName = contactName.shift().trim();
@@ -85,13 +106,25 @@
 			}
 
 			if (contact.services && contact.services.email) {
-				if (!contact.services.email._Data) {
-					contact.services.email = contact.services.email[0];
+				if ( !Array.isArray(contact.services.email) ) {
+					contact.services.email = [contact.services.email];
 				}
-				if (!card.email) {
-					card.email = [];
+
+				for (var email of contact.services.email) {
+					// Elements without attributes are parsed as plain strings
+					var address = (typeof email === 'string' ? email : email._Data) || '',
+						emailProperty = emailPropertyMapping.hasOwnProperty(email.classifier) ?
+							emailPropertyMapping[email.classifier] : 'email';
+
+					address = address.trim();
+					if (!address) {
+						continue;
+					}
+					if (!card[emailProperty]) {
+						card[emailProperty] = [];
+					}
+					card[emailProperty].push(address);
 				}
-				card.email.push(contact.services.email._Data);
 			}
 
 			output.vCardStrings[saveFileName] = card.getFormattedString();

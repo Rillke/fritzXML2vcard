@@ -1,6 +1,8 @@
-# fritzXML2vcard [![Build Status](https://api.travis-ci.com/Rillke/fritzXML2vcard.svg?branch=master)](https://travis-ci.com/Rillke/fritzXML2vcard)
+# fritzXML2vcard [![CI](https://github.com/Rillke/fritzXML2vcard/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Rillke/fritzXML2vcard/actions/workflows/ci.yml)
 
 Convert FRITZ!Box address book XML format to vCards.
+
+See [CONVERSION.md](CONVERSION.md) for how names, phone numbers and email addresses are mapped to vCard properties.
 
 ## Web interface/ online version
 
@@ -10,13 +12,14 @@ An [online web-version is available](https://blog.rillke.com/fritzXML2vcard/). Y
 
 ## CLI user installation
 
-Requires [nodejs and npm](https://nodejs.org/en/download/).
+Requires [Node.js 22 or newer and npm](https://nodejs.org/en/download/).
 
 Install the [fritz-xml-2vcard](https://www.npmjs.com/package/fritz-xml-2vcard) package from npm.
 
 ```bash
 npm i -g fritz-xml-2vcard
 fritz-xml-2vcard /path/to/contact.xml /path/to/output/dir
+man fritz-xml-2vcard
 ```
 
 ## Developer installation

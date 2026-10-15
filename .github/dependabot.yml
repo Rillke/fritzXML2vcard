@@ -17,3 +17,7 @@ updates:
   - dependency-name: jasmine
     versions:
     - 3.6.4
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: weekly
