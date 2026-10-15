@@ -12,7 +12,7 @@ An [online web-version is available](https://blog.rillke.com/fritzXML2vcard/). Y
 
 ## CLI user installation
 
-Requires [nodejs and npm](https://nodejs.org/en/download/).
+Requires [Node.js 22 or newer and npm](https://nodejs.org/en/download/).
 
 Install the [fritz-xml-2vcard](https://www.npmjs.com/package/fritz-xml-2vcard) package from npm.
 
