@@ -21,8 +21,8 @@ The file name is the contact's `<realName>` with spaces, commas, colons,
 slashes and backslashes replaced by `_`, plus `.vcf`. For example
 `Doe, John` becomes `Doe__John.vcf`.
 
-Contacts whose names produce the same file name share one entry: the contact
-that comes last in the XML wins, the others are not part of the result.
+If several contacts produce the same file name, ignoring case, the later ones
+get a numeric suffix: `Doe__John.vcf`, `Doe__John_2.vcf`, `Doe__John_3.vcf`.
 
 Every vCard carries a `REV` property with the time of conversion.
 

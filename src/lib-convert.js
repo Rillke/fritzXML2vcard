@@ -33,9 +33,24 @@
 		return /^[0-9][1-9]\d+$/.test(number);
 	}
 
+	function uniqueFileName(baseName, usedFileNames) {
+		// Compare case-insensitively, so that files don't overwrite each
+		// other on case-insensitive file systems either
+		var fileName = baseName + '.vcf',
+			counter = 1;
+
+		while (usedFileNames.hasOwnProperty(fileName.toLowerCase())) {
+			counter++;
+			fileName = baseName + '_' + counter + '.vcf';
+		}
+		usedFileNames[fileName.toLowerCase()] = true;
+		return fileName;
+	}
+
 	function run(parsedXML, area_code, country_code) {
 		var contacts = parsedXML.phonebook.contact,
-			output = {vCardStrings:{},vCardObjects:{}};
+			output = {vCardStrings:{},vCardObjects:{}},
+			usedFileNames = {};
 
 		country_code = (country_code || '').trim();
 		area_code = (area_code || '').trim();
@@ -49,8 +64,8 @@
 			var card = vCard(),
 				contactName = contact.person.realName
 					.split(','),
-				saveFileName = contact.person.realName
-					.replace(/[ ,:\/\\]/gi, '_') + '.vcf';
+				saveFileName = uniqueFileName(contact.person.realName
+					.replace(/[ ,:\/\\]/gi, '_'), usedFileNames);
 
 			if (contactName.length > 1) {
 				card.lastName = contactName.shift().trim();

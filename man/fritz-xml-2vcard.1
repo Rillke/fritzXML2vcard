@@ -17,7 +17,13 @@ one vCard (version 3.0, UTF\-8) per contact into
 Each file is named after the contact's name, with spaces, commas, colons,
 slashes and backslashes replaced by underscores, and gets the extension
 .BR .vcf .
-Existing files with the same name are overwritten.
+Contacts that would get the same file name are numbered, for example
+.B Doe__John.vcf
+and
+.BR Doe__John_2.vcf .
+Existing files with the same name in
+.I output-directory
+are overwritten.
 .PP
 Names, phone numbers of the types home, work, mobile, fax_work and
 untyped numbers, as well as email addresses are converted.

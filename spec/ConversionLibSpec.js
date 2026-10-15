@@ -128,3 +128,33 @@ describe("lib-convert: edge cases", function() {
     ]);
   });
 });
+
+describe("lib-convert: file names", function() {
+  var libConvert = require('../src/lib-convert');
+
+  function convert(names) {
+    return libConvert.fritzXML2vcard('<?xml version="1.0" encoding="utf-8"?>' +
+      '<phonebooks><phonebook name="Telefonbuch">' +
+      names.map(function(name, i) {
+        return '<contact><person><realName>' + name + '</realName></person>' +
+          '<telephony><number type="home" id="0">' + (100 + i) + '</number>' +
+          '</telephony></contact>';
+      }).join('') + '</phonebook></phonebooks>');
+  }
+
+  it('keeps contacts whose names produce the same file name', function() {
+    var result = convert(['Doe, John', 'Doe, John', 'Doe John', 'doe, john']);
+    expect(Object.keys(result)).toEqual([
+      'Doe__John.vcf', 'Doe__John_2.vcf', 'Doe_John.vcf', 'doe__john_3.vcf'
+    ]);
+    expect(result['Doe__John.vcf']).toContain('TEL;TYPE=HOME,VOICE:100');
+    expect(result['Doe__John_2.vcf']).toContain('TEL;TYPE=HOME,VOICE:101');
+    expect(result['doe__john_3.vcf']).toContain('TEL;TYPE=HOME,VOICE:103');
+  });
+
+  it('does not reuse a file name taken by another contact', function() {
+    expect(Object.keys(convert(['Doe_John_2', 'Doe_John', 'Doe_John']))).toEqual([
+      'Doe_John_2.vcf', 'Doe_John.vcf', 'Doe_John_3.vcf'
+    ]);
+  });
+});
