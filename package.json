@@ -24,7 +24,6 @@
     "jquery-modal": "^0.9.2",
     "jshint": "^2.10.2",
     "jszip": "^3.10.2",
-    "node-git-version": "^0.1.2",
     "uglify-js": "^3.19.3"
   },
   "overrides": {
@@ -34,10 +33,10 @@
     }
   },
   "scripts": {
-    "lint": "jshint ./*.js src/**.js spec/**.js",
+    "lint": "jshint ./*.js scripts/**.js src/**.js spec/**.js",
     "unit-test": "jasmine",
     "test": "npm run lint && npm run unit-test",
-    "versionjs": "cd src && ../node_modules/.bin/node-git-version",
+    "versionjs": "node scripts/version.js",
     "escompat": "mkdir -p lib && babel src --out-dir lib",
     "bundle": "browserify lib/* -o dist/fritzXML2vcard-browser.js && browserify lib/browser-api.js -o dist/fritzXML2vcard-browser-api.js",
     "minify": "uglifyjs --source-map --compress -m -o dist/fritzXML2vcard-browser-min.js dist/fritzXML2vcard-browser.js && uglifyjs --source-map --compress -m -o dist/fritzXML2vcard-browser-api-min.js dist/fritzXML2vcard-browser-api.js",
