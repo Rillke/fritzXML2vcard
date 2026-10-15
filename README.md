@@ -34,6 +34,13 @@ mkdir -p /path/to/output/dir
 /path/to/node_or_nodejs ./convert.js /path/to/contact.xml /path/to/output/dir
 ```
 
+The web version in `dist/` is tested in Chromium with [Playwright](https://playwright.dev/) (run `npm run build` first):
+
+```bash
+npx playwright install chromium
+npm run test:browser
+```
+
 ## Node.js API usage
 
 ```javascript
