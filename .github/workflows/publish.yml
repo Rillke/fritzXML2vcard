@@ -1,17 +1,62 @@
-name: Publish to npm
+name: Release
 
+# Push a tag named after the version in package.json (e.g. v4.0.0) to
+# create the GitHub release and publish the package to npm.
 on:
-  release:
-    types: [published]
+  push:
+    tags: ['v*']
 
 permissions:
   contents: read
-  # Required for npm trusted publishing (OIDC) and provenance
-  id-token: write
 
 jobs:
-  publish:
+  test:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Check that the tag matches the package version
+        run: test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+  github-release:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Create the GitHub release from CHANGELOG.md
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release $VERSION already exists."
+            exit 0
+          fi
+          # The section "## <version without v>" up to the next "## " heading
+          awk -v v="${VERSION#v}" '
+            /^## / { if (found) exit; found = (index($0, "## " v) == 1); next }
+            found' CHANGELOG.md > release-notes.md
+          if [ -s release-notes.md ]; then
+            gh release create "$VERSION" --verify-tag --title "$VERSION" --notes-file release-notes.md
+          else
+            gh release create "$VERSION" --verify-tag --title "$VERSION" --generate-notes
+          fi
+
+  npm:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required for npm trusted publishing (OIDC) and provenance
+      id-token: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -21,6 +66,4 @@ jobs:
           cache: npm
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
-      - run: npm run build
-      - run: npm test
       - run: npm publish
