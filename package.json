@@ -4,6 +4,7 @@
   "description": "Convert FRITZ!Box address book XML format to vcards.",
   "main": "src/lib-convert.js",
   "bin": "./convert.js",
+  "man": "./man/fritz-xml-2vcard.1",
   "engines": {
     "node": ">=18"
   },

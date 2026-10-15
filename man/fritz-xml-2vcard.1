@@ -1,0 +1,74 @@
+.TH FRITZ-XML-2VCARD 1 2026-10-15 "fritz-xml-2vcard" "User Commands"
+.SH NAME
+fritz-xml-2vcard \- convert a FRITZ!Box phone book export to vCard files
+.SH SYNOPSIS
+.B fritz-xml-2vcard
+.I phonebook.xml
+.I output-directory
+.br
+.B fritz-xml-2vcard
+.RB [ \-h | \-\-help ]
+.SH DESCRIPTION
+.B fritz-xml-2vcard
+reads a phone book exported from an AVM FRITZ!Box in XML format and writes
+one vCard (version 3.0, UTF\-8) per contact into
+.IR output-directory .
+.PP
+Each file is named after the contact's name, with spaces, commas, colons,
+slashes and backslashes replaced by underscores, and gets the extension
+.BR .vcf .
+Existing files with the same name are overwritten.
+.PP
+Names, phone numbers of the types home, work, mobile, fax_work and
+untyped numbers, as well as email addresses are converted.
+See
+.I CONVERSION.md
+in the package for the complete mapping.
+.SH ARGUMENTS
+.TP
+.I phonebook.xml
+Path to the FRITZ!Box phone book XML export.
+.TP
+.I output-directory
+Directory to write the vCard files to.
+It must already exist.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Print a usage summary and exit.
+.SH EXIT STATUS
+.TP
+.B 0
+All contacts were converted.
+.TP
+.B 1
+The usage summary was requested, arguments are missing, the input file or
+the output directory could not be found, or required modules are not
+installed.
+.SH EXAMPLES
+Convert the phone book
+.I phonebook.xml
+into the directory
+.IR vcards :
+.PP
+.RS
+.nf
+mkdir -p vcards
+fritz-xml-2vcard phonebook.xml vcards
+.fi
+.RE
+.SH NOTES
+Unlike the Node.js API and the web version, the command line tool does not
+add area or country codes to phone numbers.
+.PP
+A web version is available at
+.UR https://blog.rillke.com/fritzXML2vcard/
+.UE .
+.SH BUGS
+Report bugs at
+.UR https://github.com/Rillke/fritzXML2vcard/issues
+.UE .
+.SH AUTHOR
+Rainer Rillke.
+.SH COPYRIGHT
+MIT License.

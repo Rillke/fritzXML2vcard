@@ -19,6 +19,7 @@ Install the [fritz-xml-2vcard](https://www.npmjs.com/package/fritz-xml-2vcard) p
 ```bash
 npm i -g fritz-xml-2vcard
 fritz-xml-2vcard /path/to/contact.xml /path/to/output/dir
+man fritz-xml-2vcard
 ```
 
 ## Developer installation
