@@ -43,7 +43,7 @@ npm run test:browser
 
 ## Releasing
 
-Update the version in `package.json` and `CHANGELOG.md`, merge, then push a tag named after the version, e.g. `git tag v4.0.0 && git push origin v4.0.0`. GitHub Actions tests it, creates the GitHub release from `CHANGELOG.md` and publishes the package to npm.
+Update the version in `package.json` and `CHANGELOG.md` and merge. Then either run the **Release** workflow on `main` (Actions → Release → Run workflow), or push a tag named after the version, e.g. `git tag v4.0.0 && git push origin v4.0.0`. The workflow tests the release, creates the tag and the GitHub release with the notes from `CHANGELOG.md`, and publishes the package to npm.
 
 ## Node.js API usage
 

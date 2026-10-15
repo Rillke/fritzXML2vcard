@@ -1,25 +1,38 @@
 name: Release
 
-# Push a tag named after the version in package.json (e.g. v4.0.0) to
-# create the GitHub release and publish the package to npm.
+# Release the version in package.json: create the GitHub release with the
+# notes from CHANGELOG.md and publish the package to npm. Either push a tag
+# named after the version (e.g. v4.0.0), or run this workflow manually on
+# main, which creates the tag along with the release.
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   test:
+    if: github.ref_type == 'tag' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-      - name: Check that the tag matches the package version
-        run: test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
+      - name: Determine the version
+        id: version
+        run: |
+          VERSION="v$(node -p 'require("./package.json").version')"
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "$VERSION" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match the version $VERSION in package.json."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
       - run: npm ci
       - run: npm run build
       - run: npm test
@@ -34,7 +47,7 @@ jobs:
       - name: Create the GitHub release from CHANGELOG.md
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ github.ref_name }}
+          VERSION: ${{ needs.test.outputs.version }}
         run: |
           if gh release view "$VERSION" >/dev/null 2>&1; then
             echo "Release $VERSION already exists."
@@ -44,10 +57,11 @@ jobs:
           awk -v v="${VERSION#v}" '
             /^## / { if (found) exit; found = (index($0, "## " v) == 1); next }
             found' CHANGELOG.md > release-notes.md
+          # Creates the tag on the tested commit unless it exists already
           if [ -s release-notes.md ]; then
-            gh release create "$VERSION" --verify-tag --title "$VERSION" --notes-file release-notes.md
+            gh release create "$VERSION" --target "$GITHUB_SHA" --title "$VERSION" --notes-file release-notes.md
           else
-            gh release create "$VERSION" --verify-tag --title "$VERSION" --generate-notes
+            gh release create "$VERSION" --target "$GITHUB_SHA" --title "$VERSION" --generate-notes
           fi
 
   npm:
@@ -66,4 +80,12 @@ jobs:
           cache: npm
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
-      - run: npm publish
+      - name: Publish to npm
+        run: |
+          if [ -n "$(npm view "$(node -p 'require("./package.json").name')@${VERSION#v}" version 2>/dev/null)" ]; then
+            echo "$VERSION is already on npm."
+            exit 0
+          fi
+          npm publish
+        env:
+          VERSION: ${{ needs.test.outputs.version }}
