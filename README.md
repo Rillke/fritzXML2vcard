@@ -41,6 +41,10 @@ npx playwright install chromium
 npm run test:browser
 ```
 
+## Releasing
+
+Update the version in `package.json` and `CHANGELOG.md`, merge, then push a tag named after the version, e.g. `git tag v4.0.0 && git push origin v4.0.0`. GitHub Actions tests it, creates the GitHub release from `CHANGELOG.md` and publishes the package to npm.
+
 ## Node.js API usage
 
 ```javascript
