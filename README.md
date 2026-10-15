@@ -2,6 +2,8 @@
 
 Convert FRITZ!Box address book XML format to vCards.
 
+See [CONVERSION.md](CONVERSION.md) for how names, phone numbers and email addresses are mapped to vCard properties.
+
 ## Web interface/ online version
 
 An [online web-version is available](https://blog.rillke.com/fritzXML2vcard/). You may also [download the entire website](https://github.com/Rillke/fritzXML2vcard/zipball/gh-pages).
