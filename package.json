@@ -5,7 +5,7 @@
   "main": "src/lib-convert.js",
   "bin": "./convert.js",
   "engines": {
-    "node": "^16"
+    "node": ">=18"
   },
   "dependencies": {
     "pixl-xml": "^1.0.13",

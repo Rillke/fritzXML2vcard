@@ -1,4 +1,4 @@
-# fritzXML2vcard [![Build Status](https://api.travis-ci.com/Rillke/fritzXML2vcard.svg?branch=master)](https://travis-ci.com/Rillke/fritzXML2vcard)
+# fritzXML2vcard [![CI](https://github.com/Rillke/fritzXML2vcard/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Rillke/fritzXML2vcard/actions/workflows/ci.yml)
 
 Convert FRITZ!Box address book XML format to vCards.
 
