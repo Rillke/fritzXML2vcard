@@ -69,3 +69,62 @@ describe("lib-convert", function() {
   });
 });
 
+
+describe("lib-convert: edge cases", function() {
+  var libConvert = require('../src/lib-convert');
+
+  function convertContact(contactXML, areaCode, countryCode) {
+    var result = libConvert.fritzXML2vcard('<?xml version="1.0" encoding="utf-8"?>' +
+      '<phonebooks><phonebook name="Telefonbuch"><contact>' +
+      '<person><realName>Doe, John</realName></person>' + contactXML +
+      '</contact></phonebook></phonebooks>', areaCode, countryCode);
+    return result['Doe__John.vcf'].split(/\r?\n/).filter(function(line) {
+      return /^(TEL|EMAIL)/.test(line);
+    });
+  }
+
+  it('keeps multiple phone numbers of the same type', function() {
+    expect(convertContact('<telephony nid="2">' +
+      '<number type="home" prio="1" id="0">123456</number>' +
+      '<number type="home" prio="0" id="1">654321</number>' +
+      '</telephony>')).toEqual([
+      'TEL;TYPE=HOME,VOICE:123456',
+      'TEL;TYPE=HOME,VOICE:654321'
+    ]);
+  });
+
+  it('skips empty number elements and unknown number types', function() {
+    expect(convertContact('<telephony nid="4">' +
+      '<number type="work" prio="0" id="0"></number>' +
+      '<number type="fax_work" prio="0" id="1" />' +
+      '<number type="intern" prio="0" id="2">**610</number>' +
+      '<number type="mobile" prio="1" id="3">0170 1234567</number>' +
+      '</telephony>')).toEqual([
+      'TEL;TYPE=CELL:0170 1234567'
+    ]);
+  });
+
+  it('converts all email addresses and maps classifiers', function() {
+    expect(convertContact('<services nid="3">' +
+      '<email classifier="private" id="0">home@example.com</email>' +
+      '<email classifier="work" id="1">work@example.com</email>' +
+      '<email classifier="other" id="2">other@example.com</email>' +
+      '</services>')).toEqual([
+      'EMAIL;CHARSET=UTF-8;type=HOME,INTERNET:home@example.com',
+      'EMAIL;CHARSET=UTF-8;type=WORK,INTERNET:work@example.com',
+      'EMAIL;CHARSET=UTF-8;type=OTHER,INTERNET:other@example.com'
+    ]);
+  });
+
+  it('skips empty email elements', function() {
+    expect(convertContact('<services nid="1">' +
+      '<email classifier="private" id="0" />' +
+      '</services>')).toEqual([]);
+    expect(convertContact('<services nid="2">' +
+      '<email classifier="private" id="0"></email>' +
+      '<email>plain@example.com</email>' +
+      '</services>')).toEqual([
+      'EMAIL;CHARSET=UTF-8;type=HOME,INTERNET:plain@example.com'
+    ]);
+  });
+});

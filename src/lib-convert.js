@@ -15,6 +15,12 @@
 		'': 'otherPhone'
 	};
 
+	// map FritzXML email classifiers to vcf; anything else becomes a home email
+	var emailPropertyMapping = {
+		'work': 'workEmail',
+		'other': 'otherEmail'
+	};
+
 	function needsAreaCode(number) {
 		// starts with 1 to 9 (not 0, nor +), is an actual number
 		return /^[1-9]\d+$/.test(number);
@@ -85,13 +91,25 @@
 			}
 
 			if (contact.services && contact.services.email) {
-				if (!contact.services.email._Data) {
-					contact.services.email = contact.services.email[0];
+				if ( !Array.isArray(contact.services.email) ) {
+					contact.services.email = [contact.services.email];
 				}
-				if (!card.email) {
-					card.email = [];
+
+				for (var email of contact.services.email) {
+					// Elements without attributes are parsed as plain strings
+					var address = (typeof email === 'string' ? email : email._Data) || '',
+						emailProperty = emailPropertyMapping.hasOwnProperty(email.classifier) ?
+							emailPropertyMapping[email.classifier] : 'email';
+
+					address = address.trim();
+					if (!address) {
+						continue;
+					}
+					if (!card[emailProperty]) {
+						card[emailProperty] = [];
+					}
+					card[emailProperty].push(address);
 				}
-				card.email.push(contact.services.email._Data);
 			}
 
 			output.vCardStrings[saveFileName] = card.getFormattedString();
