@@ -70,12 +70,20 @@
 		process.exit(1);
 	}
 
-	var xmlString = fs.readFileSync(inputFile, 'utf8'),
-		result = libConvert.fritzXML2vcard(xmlString);
+	var path = require('path'),
+		xmlString = fs.readFileSync(inputFile, 'utf8'),
+		result = libConvert.fritzXML2vcard(xmlString),
+		resolvedOutputDir = path.resolve(outputDir);
 
 		for ( var vcfFile in result ) {
 			if ( result.hasOwnProperty( vcfFile ) ) {
-				fs.writeFileSync( outputDir + '/' + vcfFile, result[vcfFile] );
+				var destPath = path.resolve(resolvedOutputDir, path.basename(vcfFile));
+				if (destPath !== resolvedOutputDir &&
+					destPath.indexOf(resolvedOutputDir + path.sep) !== 0) {
+					console.error('Refusing to write outside of output directory: ' + vcfFile);
+					continue;
+				}
+				fs.writeFileSync( destPath, result[vcfFile] );
 			}
 		}
 }());
